@@ -1,0 +1,9 @@
+# FASTQ directory
+fastq_dir: /scratch/caz3so/ATAC_processing/analysis/fastq
+output_dir: /data/miraldiNB/Tareian/scratch/20210908_maxATAC_Barski_cd4_reseq/outputs/snakemake
+
+# Bowtie2 index
+idx_bt2: /data/miraldiLab/databank/genome_inf/hg38/bowtie2_index/hg38
+
+# Path to a JSON file with samples and their corresponding FASTQ files.
+SAMPLES_TSV: './sample.tsv'
