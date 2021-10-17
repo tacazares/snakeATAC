@@ -3,8 +3,14 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+#
+.idea/
+
 # C extensions
 *.so
+
+# Snakemake
+.snakemake/
 
 # Distribution / packaging
 .Python

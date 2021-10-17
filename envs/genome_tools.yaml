@@ -4,3 +4,5 @@ channels:
 dependencies:
   - bedtools =2.30.0
   - pigz
+  - samtools =1.9
+  - ucsc-bedgraphtobigwig
