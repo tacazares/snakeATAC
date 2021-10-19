@@ -1,4 +1,4 @@
-configfile: "config.yaml"
+configfile: "./inputs/config.yaml"
 
 # localrules will let the rule run locally rather than submitting to cluster
 # computing nodes, this is for very small jobs
