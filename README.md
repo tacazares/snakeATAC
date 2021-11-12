@@ -32,18 +32,18 @@ pip install snakemake
 
 ### Clone the snakeATAC repository
 
-In your favorite repo directory, clone `[snakeATAC](https://github.com/tacazares/snakeATAC.git)`. You will modify the `[config.yaml](docs/config_yaml.md)` and create a `[tab-delimited sample meta file](docs/meta_file.md)`.
+In your favorite repo directory, clone [snakeATAC](https://github.com/tacazares/snakeATAC.git). You will modify the [config.yaml](docs/config_yaml.md) and create a [tab-delimited sample meta file](docs/meta_file.md).
 
 ## Workflow Overview
 
-Snakemake pipelines promote experimental reproducibility. For each project that you have, you should have a seperate `[config.yaml](docs/config_yaml.md)` file and a unique input/output directory.
+Snakemake pipelines promote experimental reproducibility. For each project that you have, you should have a seperate [config.yaml](docs/config_yaml.md) file and a unique input/output directory.
 
-This workflow assumes that your run parameters are stored in the `[config.yaml](docs/config_yaml.md)` file and meta data for the experiments are found in a `[tab-delimited sample meta file](docs/meta_file.md)`.
+This workflow assumes that your run parameters are stored in the [config.yaml](docs/config_yaml.md) file and meta data for the experiments are found in a [tab-delimited sample meta file](docs/meta_file.md).
 
 
 ## Run snakeATAC
 
-First you must adjust the [config.yaml](docs/config_yaml.md)` and the `[tab-delimited sample meta file](docs/meta_file.md)` for your specific experiment. Then, you must change to the directory containing the `Snakefile` and execute the following command where `{threads}` is the # of threads available:
+First you must adjust the [config.yaml](docs/config_yaml.md)` and the [tab-delimited sample meta file](docs/meta_file.md) for your specific experiment. Then, you must change to the directory containing the `Snakefile` and execute the following command where `{threads}` is the # of threads available:
 
 ```bash
 snakemake --cores {threads} --use-conda --conda-frontend conda
