@@ -1,18 +1,18 @@
 # FASTQ directory
-fastq_dir: /data/miraldiNB/Tareian/scratch/20211012_maxATAC_kotyan_CD4_atopicDerm/inputs/fastq
-output_dir: /data/miraldiNB/Tareian/scratch/20211012_maxATAC_kotyan_CD4_atopicDerm/outputs
+fastq_dir: ./inputs/fastq
+output_dir: ./outputs
 
 # Bowtie2 index
-idx_bt2: /data/miraldiLab/databank/genome_inf/hg38/bowtie2_index/hg38
+idx_bt2: ./hg38/bowtie2_index/hg38
 
 # Path to a JSON file with samples and their corresponding FASTQ files.
-SAMPLES_TSV: '/data/miraldiNB/Tareian/scratch/20211012_maxATAC_kotyan_CD4_atopicDerm/inputs/Kottyan_atopicDerm_samples.tsv'
+SAMPLES_TSV: './sample.tsv'
 
 # Path to chromosome sizes file
-chrom_sizes: "/data/miraldiNB/Tareian/genome_inf/hg38.22XY.chrom.sizes"
+chrom_sizes: "./genome_inf/hg38.22XY.chrom.sizes"
 
 # Path to blacklisted regions file
-blacklist: "/data/miraldiNB/Tareian/genome_inf/hg38_maxatac_blacklist_merged.bed"
+blacklist: "./genome_inf/hg38_maxatac_blacklist_merged.bed"
 
 # Slop size to use around the Tn5 insertion sites
 slop: 20

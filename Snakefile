@@ -1,5 +1,6 @@
 configfile: "./inputs/config.yaml"
 
+# This script was adapted from https://github.com/tacazares/pyflow-ATACseq
 # localrules will let the rule run locally rather than submitting to cluster
 # computing nodes, this is for very small jobs
 localrules: all
@@ -39,7 +40,7 @@ rule fastqc_pre_trim:
     wrapper:
         "0.77.0/bio/fastqc"
 
-# Trim the fastq reads if there is adapter contamination
+# Trim the fastq reads 
 rule trim_galore_pe:
     input:  
         fq1=os.path.join(config["fastq_dir"], "{sample}_1.fastq.gz"),
@@ -109,7 +110,7 @@ rule bowtie2_align_PE:
         bowtie2 {params.bowtie} -p {threads} -x {config[idx_bt2]} -1 {input[0]} -2 {input[1]} -S {output} 2> {log}
         """
 
-# Remove low quality from the file
+# Remove low quality alignments from the file
 rule quality_filter_namesort_sam2bam_pe:
     input:  os.path.join(config["output_dir"], "{sample}/alignments/{sample}.sam")
 
