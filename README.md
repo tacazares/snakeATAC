@@ -43,7 +43,7 @@ This workflow assumes that your run parameters are stored in the [config.yaml](d
 
 ## Run snakeATAC
 
-First you must adjust the [config.yaml](docs/config_yaml.md)` and the [tab-delimited sample meta file](docs/meta_file.md) for your specific experiment. Then, you must change to the directory containing the `Snakefile` and execute the following command where `{threads}` is the # of threads available:
+First you must adjust the [config.yaml](docs/config_yaml.md) and the [tab-delimited sample meta file](docs/meta_file.md) for your specific experiment. Then, you must change to the directory containing the `Snakefile` and execute the following command where `{threads}` is the # of threads available:
 
 ```bash
 snakemake --cores {threads} --use-conda --conda-frontend conda
