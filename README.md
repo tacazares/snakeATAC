@@ -32,7 +32,11 @@ pip install snakemake
 
 ### Clone the snakeATAC repository
 
-In your favorite repo directory, clone [snakeATAC](https://github.com/tacazares/snakeATAC.git). You will modify the [config.yaml](docs/config_yaml.md) and create a [tab-delimited sample meta file](docs/meta_file.md).
+In your favorite repo directory clone the snakeATAC repo:
+
+```bash
+git clone https://github.com/tacazares/snakeATAC.git
+```
 
 ## Workflow Overview
 
@@ -40,6 +44,7 @@ Snakemake pipelines promote experimental reproducibility. For each project that 
 
 This workflow assumes that your run parameters are stored in the [config.yaml](docs/config_yaml.md) file and meta data for the experiments are found in a [tab-delimited sample meta file](docs/meta_file.md).
 
+You will need to modify the [config.yaml](docs/config_yaml.md) and create a [tab-delimited sample meta file](docs/meta_file.md) before running the pipeline.
 
 ## Run snakeATAC
 
