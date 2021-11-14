@@ -5,7 +5,7 @@ output_dir: ./outputs
 # Bowtie2 index
 idx_bt2: ./hg38/bowtie2_index/hg38
 
-# Path to a JSON file with samples and their corresponding FASTQ files.
+# Path to a TSV file with samples and their corresponding FASTQ file paths.
 SAMPLES_TSV: './sample.tsv'
 
 # Path to chromosome sizes file
