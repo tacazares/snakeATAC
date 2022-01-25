@@ -2,7 +2,7 @@
 
 A snakemake workflow for ATAC-seq data processing
 
-This pipeline was developed from code used in https://github.com/tacazares/pyflow-ATACseq
+This pipeline was created from code developed by [Crazy Hot Tommy!](https://github.com/crazyhottommy?tab=repositories)
 
 ## Installation
 
@@ -47,6 +47,7 @@ This workflow assumes that your run parameters are stored in the [config.yaml](d
 You will need to modify the [config.yaml](docs/config_yaml.md) and create a [tab-delimited sample meta file](docs/meta_file.md) before running the pipeline.
 
 A detailed overview of the steps in the ATAC-seq data processing are found [here](docs/ATAC_processing.md).
+
 ## Run snakeATAC
 
 1) Adjust the [config.yaml](docs/config_yaml.md) and the [tab-delimited sample meta file](docs/meta_file.md) for your specific experiment.
@@ -56,3 +57,51 @@ A detailed overview of the steps in the ATAC-seq data processing are found [here
 snakemake --cores {threads} --use-conda --conda-frontend conda
 ```
 
+## Process GM12878 ATAC-seq data from [Corces (2017)](https://www.nature.com/articles/nmeth.4396) and [Buenrostro (2013)](https://www.nature.com/articles/nmeth.2688)
+
+This is a brief example of how to process ATAC-seq data from public sources. 
+
+First, create a directory to store your fastq files. The SRA accession list for public GM12878 data is available at [./snakeATAC/inputs/GM12878_sample.tsv](./inputs/GM12878_sample.tsv).
+
+### Download fastq files
+
+First, download the fastq files from sra using `fasterq-dump`. [This](https://rnnh.github.io/bioinfo-notebook/docs/fasterq-dump.html) is a good overview for new users.
+
+Below is example code of how to download data from SRA using `fasterq-dump` and `pigz` for file compression.
+
+```bash
+# Make the directory where the fastq files will be stored
+mkdir -p ./data/fastq
+
+# Change into directory
+cd ./data/fastq
+
+# Loop through sample names and downlad
+for SRA in $(tail -n +2 ./inputs/GM12878_sample.tsv | cut -f1);
+do
+# Fastq dump
+fasterq-dump -e 6 -p ${SRA}
+
+# Compress fastq file
+pigz  ${SRA}*.fastq
+done
+```
+
+### Run snakeATAC
+
+First, if you are running this pipeline for your first time, you will need to probably do a dry-run to make sure that everything was installed right. 
+
+1) Change to the working directory for snakeATAC
+   ```bash
+   cd ./snakeATAC/
+   ```
+2) 
+
+
+
+Then you can run the full run using your favorite HPC system. I use LSF and below is an example script:
+
+```bash
+
+
+```
