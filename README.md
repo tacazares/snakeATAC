@@ -87,21 +87,18 @@ pigz  ${SRA}*.fastq
 done
 ```
 
-### Run snakeATAC
+### Run snakemake
 
-First, if you are running this pipeline for your first time, you will need to probably do a dry-run to make sure that everything was installed right. 
+First, if you are running this pipeline for your first time, you will need to probably do a dry-run to make sure that everything was installed right.
 
-1) Change to the working directory for snakeATAC
+1) Change to the working directory for snakeATAC:
+
    ```bash
    cd ./snakeATAC/
    ```
-2) 
 
+2) Then you can run the full run using your favorite HPC system. I use LSF and below is an example script:
 
-
-Then you can run the full run using your favorite HPC system. I use LSF and below is an example script:
-
-```bash
-
-
-```
+   ```bash
+   snakemake --cores 24 --use-conda --conda-frontend conda
+   ```
