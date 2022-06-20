@@ -352,7 +352,7 @@ rule deeptools_bamPEFragmentSize:
         """
 
 rule get_chrom_read_counts:
-    input: os.path.join(config["output_dir"], "{sample}/alignments/{sample}.sam")
+    input: os.path.join(config["output_dir"], "{sample}/alignments/{sample}.fixmate.bam")
 
     output: os.path.join(config["output_dir"], "{sample}/qc/chrom_counts/{sample}_chrom_read_counts.txt")
     
