@@ -17,10 +17,15 @@ ALL_TRIMMED_FASTQ = expand(os.path.join(config["output_dir"], "{sample}/trimmed_
 ALL_BAM = expand(os.path.join(config["output_dir"], "{sample}/alignments/{sample}.bam"), sample = ALL_SAMPLES)
 ALL_FLAGSTAT = expand(os.path.join(config["output_dir"], "{sample}/flagstat/{sample}.{type}.flagstat"), sample = ALL_SAMPLES, type= ["sam", "final_bam"])
 ALL_BIGWIG = expand(os.path.join(config["output_dir"], "{sample}/tags/{sample}_Tn5_slop" + str(config["slop"]) + "_blacklisted.bw"), sample= ALL_SAMPLES)
-ALL_PEAKS = expand(os.path.join(config["output_dir"], "{sample}/peaks/{sample}_ext{ext}_{qval}_peaks.narrowPeak"), sample=ALL_SAMPLES, ext = ["200", "40"], qval=["q05", "q01"])
+ALL_PEAKS = expand(os.path.join(config["output_dir"], "{sample}/peaks/{sample}_ext{ext_size}_q{qvalue}_peaks.narrowPeak"), sample=ALL_SAMPLES, ext_size = ["200", "40"], qvalue=["05", "01"])
+ALL_FRIPS = expand(os.path.join(config["output_dir"], "{sample}/qc/frip/{sample}_ext{ext_size}_q{qvalue}_FRIP.txt"), sample=ALL_SAMPLES, ext_size = ["200", "40"], qvalue=["05", "01"])
+ALL_FRAG_DIST = expand(os.path.join(config["output_dir"], "{sample}/qc/fragment_dist/{sample}.tsv"), sample=ALL_SAMPLES)
+ALL_CHROM_READ_COUNTS = expand(os.path.join(config["output_dir"], "{sample}/qc/chrom_counts/{sample}_chrom_read_counts.txt"), sample=ALL_SAMPLES)
+
+shift_dict = {"40": "0", "200": "80"}
 
 rule all:
-    input:  ALL_BIGWIG  + ALL_FLAGSTAT + ALL_FASTQC + ALL_PEAKS
+    input:  ALL_BIGWIG  + ALL_FLAGSTAT + ALL_FASTQC + ALL_PEAKS + ALL_FRIPS + ALL_FRAG_DIST + ALL_CHROM_READ_COUNTS
 
 # Use fastqc to get pre-trim stats on fastq
 rule fastqc_pre_trim:
@@ -284,32 +289,80 @@ rule get_Tn5_coverage:
 rule macs2_call_peaks:
     input: os.path.join(config["output_dir"], "{sample}/tags/{sample}_Tn5_slop" + str(config["slop"]) + "_blacklisted.bed.gz")
 
-    output: os.path.join(config["output_dir"], "{sample}/peaks/{sample}_ext200_q05_peaks.narrowPeak"),
-            os.path.join(config["output_dir"], "{sample}/peaks/{sample}_ext40_q05_peaks.narrowPeak"),
-            os.path.join(config["output_dir"], "{sample}/peaks/{sample}_ext200_q01_peaks.narrowPeak"),
-            os.path.join(config["output_dir"], "{sample}/peaks/{sample}_ext40_q01_peaks.narrowPeak")
+    output: os.path.join(config["output_dir"], "{sample}/peaks/{sample}_ext{ext_size}_q{qvalue}_peaks.narrowPeak")
 
-    log:    os.path.join(config["output_dir"], "{sample}/logs/macs2/{sample}.macs2")
+    log:    os.path.join(config["output_dir"], "{sample}/logs/macs2/{sample}_ext{ext_size}_q{qvalue}.macs2")
+
     params: PEAK_DIR = os.path.join(config["output_dir"], "{sample}/peaks"),
-            NAME_ext200_q05 = "{sample}_ext200_q05",
-            NAME_ext40_q05 = "{sample}_ext40_q05",
-            NAME_ext200_q01 = "{sample}_ext200_q01",
-            NAME_ext40_q01 = "{sample}_ext40_q01"
+            NAME = "{sample}_ext{ext_size}_q{qvalue}",
+            shift_size = lambda wildcards: shift_dict[wildcards.ext_size],
+            species = config["species"],
+            ext_size = "{ext_size}",
+            qvalue = "{qvalue}"
 
     threads: 4
+
     conda: "./envs/macs2.yaml"
+
     message: "call peaks {input}: {threads} threads"
+
     shell:
         """
-        # ext=200 q=.05
-        macs2 callpeak -t {input} --name {params.NAME_ext200_q05} -g hs --outdir {params.PEAK_DIR} --nomodel --shift -80 --extsize 200 --keep-dup=all
+        macs2 callpeak -t {input} --name {params.NAME} -g {params.species} --outdir {params.PEAK_DIR} --nomodel --shift -{params.shift_size} --extsize {params.ext_size} --keep-dup=all -q 0.{params.qvalue} --SPMR
+        """
 
-        # ext=40 q=.05
-        macs2 callpeak -t {input} --name {params.NAME_ext40_q05} -g hs --outdir {params.PEAK_DIR} --nomodel --extsize 40 --keep-dup=all
+rule calculate_frip:
+    input: 
+           os.path.join(config["output_dir"], "{sample}/tags/{sample}_Tn5_slop" + str(config["slop"]) + "_blacklisted.bed.gz"),
+           os.path.join(config["output_dir"], "{sample}/peaks/{sample}_ext{ext_size}_q{qvalue}_peaks.narrowPeak")
+
+    output: os.path.join(config["output_dir"], "{sample}/qc/frip/{sample}_ext{ext_size}_q{qvalue}_FRIP.txt")
+
+    log:    os.path.join(config["output_dir"], "{sample}/logs/frip/{sample}_ext{ext_size}_q{qvalue}.frip")
+
+    threads: 4
+
+    message: "calulate frip"
+
+    conda: "./envs/bedtools.yaml"
+
+    shell:
+        """
+        sh ./scripts/frip.sh {input[0]} {input[1]} {output}
+        """
+
+rule deeptools_bamPEFragmentSize:
+    input: os.path.join(config["output_dir"], "{sample}/alignments/{sample}.bam")
+    
+    output: os.path.join(config["output_dir"], "{sample}/qc/fragment_dist/{sample}.tsv")
+    
+    params:
+        bin_size = 1,
+        blacklist = config["blacklist"]
         
-        # ext=40 q=.01
-        macs2 callpeak -t {input} --name {params.NAME_ext40_q01} -g hs --outdir {params.PEAK_DIR} --nomodel --extsize 40 --keep-dup=all -q 0.01
+    threads: 4
+    
+    conda: "./envs/deeptools.yaml"
 
-        # ext=200 q=.01
-        macs2 callpeak -t {input} --name {params.NAME_ext200_q01} -g hs --outdir {params.PEAK_DIR} --nomodel --shift -80 --extsize 200 --keep-dup=all -q 0.01
+    log: os.path.join(config["output_dir"], "{sample}/logs/frip/{sample}.frip")
+        
+    shell:
+        """
+        bamPEFragmentSize -b {input} -p {threads} --binSize {params.bin_size} --blackListFileName {params.blacklist} --outRawFragmentLengths {output}
+        """
+
+rule get_chrom_read_counts:
+    input: os.path.join(config["output_dir"], "{sample}/alignments/{sample}.fixmate.bam")
+
+    output: os.path.join(config["output_dir"], "{sample}/qc/chrom_counts/{sample}_chrom_read_counts.txt")
+    
+    threads: 4
+
+    conda: "./envs/samtools.yaml"
+    
+    log: os.path.join(config["output_dir"], "{sample}/logs/chrom_counts/{sample}.txt")
+
+    shell:
+        """
+        samtools idxstats {input} | cut -f 1,3 > {output}
         """

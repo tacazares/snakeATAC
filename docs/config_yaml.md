@@ -6,15 +6,18 @@ The `config.yaml` file defines the parameters for the run. The input `config.yam
 
 The `config.yaml` must contain the following fields:
 
-1) fastq_dir: Path to directory containing fastq files
-2) output_dir: Path to the output directory
-3) idx_bt2: Path to the bowtie2 index
-4) SAMPLES_TSV: Path to the sample meta file in `.tsv` format
-5) chrom_sizes: Path to the chrom sizes `.txt` file
-6) blacklist: Path to the blacklist file `.bed` file
-7) slop: Slop size to use in bp
-8) million_factor: Millions factor to use, i.e. 1000000, 20000000, etc...
-9) keepChr: List of chromosomes to keep in the analysis
+| variable         | description                                            |
+|------------------|--------------------------------------------------------|
+| `fastq_dir`      | Path to directory containing fastq files               |
+| `output_dir`     | Path to the output directory                           |
+| `idx_bt2`        | Path to the bowtie2 index                              |
+| `SAMPLES_TSV`    | Path to the sample meta file in `.tsv` format          |
+| `chrom_sizes`    | Path to the chrom sizes `.txt` file                    |
+| `blacklist`      | Path to the blacklist file `.bed` file                 |
+| `slop`           | Slop size to use in bp                                 |
+| `million_factor` | Millions factor to use, i.e. 1000000, 20000000, etc... |
+| `keepChr`        | List of chromosomes to keep in the analysis            |
+| `species`        | Species of the experiments                             |
 
 Example:
 
@@ -37,6 +40,9 @@ blacklist: "./genome_inf/hg38_maxatac_blacklist_merged.bed"
 
 # Slop size to use around the Tn5 insertion sites
 slop: 20
+
+# Species
+species: hs
 
 # What is the millions factor that you want to use to scale the read counts
 million_factor: 1000000
