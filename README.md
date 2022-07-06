@@ -89,7 +89,7 @@ done
 
 ### Run snakemake
 
-First, if you are running this pipeline for your first time, you will need to probably do a dry-run to make sure that everything was installed right.
+First, if you are running this pipeline for your first time, you will need to probably do a dry-run to make sure that everything was installed right. In order to do the dry-run, you will need to have your [`config.yaml`](docs/config_yaml.md) file and [`sample.tsv`](docs/meta_file.md) file correctly set up.
 
 1) Change to the working directory for snakeATAC:
 
