@@ -8,28 +8,96 @@ localrules: all
 import pandas as pd
 import os
 
-samples_df = pd.read_table(config['SAMPLES_TSV']).set_index("Sample_ID", drop=False)
+class MetaTable(object):
+    def __init__(self,
+                 meta_path,
+                 input_dir,
+                 output_dir:
+        self.df = pd.read_table(meta_path)
 
-ALL_SAMPLES = samples_df["Sample_ID"].unique().tolist()
+        self.input_dir = input_dir
+        self.output_dir = output_dir
 
-ALL_FASTQC  = expand(os.path.join(config["output_dir"], "{sample}/qc/fastqc/{types}/{sample}_{read}_fastqc.zip"), sample = ALL_SAMPLES, read = ["1", "2"], types=["pre_trim", "post_trim"])
-ALL_TRIMMED_FASTQ = expand(os.path.join(config["output_dir"], "{sample}/trimmed_fastq/{sample}_{read}_val_{read}.fq.gz"), sample = ALL_SAMPLES, read = ["1", "2"])
-ALL_BAM = expand(os.path.join(config["output_dir"], "{sample}/alignments/{sample}.bam"), sample = ALL_SAMPLES)
-ALL_FLAGSTAT = expand(os.path.join(config["output_dir"], "{sample}/flagstat/{sample}.{type}.flagstat"), sample = ALL_SAMPLES, type= ["sam", "final_bam"])
-ALL_BIGWIG = expand(os.path.join(config["output_dir"], "{sample}/tags/{sample}_Tn5_slop" + str(config["slop"]) + "_blacklisted.bw"), sample= ALL_SAMPLES)
-ALL_PEAKS = expand(os.path.join(config["output_dir"], "{sample}/peaks/{sample}_ext{ext_size}_q{qvalue}_peaks.narrowPeak"), sample=ALL_SAMPLES, ext_size = ["200", "40"], qvalue=["05", "01"])
-ALL_FRIPS = expand(os.path.join(config["output_dir"], "{sample}/qc/frip/{sample}_ext{ext_size}_q{qvalue}_FRIP.txt"), sample=ALL_SAMPLES, ext_size = ["200", "40"], qvalue=["05", "01"])
-ALL_FRAG_DIST = expand(os.path.join(config["output_dir"], "{sample}/qc/fragment_dist/{sample}.tsv"), sample=ALL_SAMPLES)
-ALL_CHROM_READ_COUNTS = expand(os.path.join(config["output_dir"], "{sample}/qc/chrom_counts/{sample}_chrom_read_counts.txt"), sample=ALL_SAMPLES)
+        self.all_tech_reps = self.df["TECH_REP"].unique().tolist()
+
+        self.sample_list = self.df["BIO_REP"].unique().tolist()
+
+    def getReplicateFastq_pe1(self, wildcards):
+        TECH_REP_LIST = self.df[self.df["BIO_REP"] == wildcards.sample]["TECH_REP"]
+        
+        return list(map(lambda tech_rep_id: os.path.join(self.input_dir, tech_rep_id + "_1.fastq.gz"), TECH_REP_LIST))
+
+    def getReplicateFastq_pe2(self, wildcards):
+        TECH_REP_LIST = self.df[self.df["BIO_REP"] == wildcards.sample]["TECH_REP"]
+        
+        return list(map(lambda tech_rep_id: os.path.join(self.input_dir, tech_rep_id + "_2.fastq.gz"), TECH_REP_LIST))
+    
+    def getCTName(self, wildcards):
+        SRR_LIST = self.df[self.df["BIO_REP"] == wildcards.sample]["CELL_TYPE"]
+
+meta = MetaTable(config["meta_file"], config["fastq_dir"], config["output_dir"])
+
+# Expand the names out per sample
+
+## Build the SRR file names for each replicate
+SRR_FASTQ1 = expand(os.path.join(config["input_dir"], "fasterq_dump", "{accession}_1.fastq.gz"), accession = meta.all_tech_reps)
+SRR_FASTQ2 = expand(os.path.join(config["input_dir"], "fasterq_dump", "{accession}_2.fastq.gz"), accession = meta.all_tech_reps)
+
+## Build the merged FASTQ file names
+MERGED_FASTQ = expand(config["output_dir"] + "/{sample}/merged_fastq/{sample}_{read}.fastq.gz", sample = meta.sample_list, read = [1,2])
+
+# Build all fastqc names for pre and post trimmed files
+ALL_FASTQC  = expand(os.path.join(config["output_dir"], "{sample}/qc/fastqc/{types}/{sample}_{read}_fastqc.zip"), sample = meta.sample_list, read = ["1", "2"], types=["pre_trim", "post_trim"])
+
+## Build the trimming FASTQ file names
+ALL_TRIMMED_FASTQ = expand(os.path.join(config["output_dir"], "{sample}/trimmed_fastq/{sample}_{read}_val_{read}.fq.gz"), sample = meta.sample_list, read = ["1", "2"])
+
+## Build names for BAM file
+ALL_BAM = expand(os.path.join(config["output_dir"], "{sample}/alignments/{sample}.bam"), sample = meta.sample_list)
+ALL_FLAGSTAT = expand(os.path.join(config["output_dir"], "{sample}/flagstat/{sample}.{type}.flagstat"), sample = meta.sample_list, type= ["sam", "final_bam"])
+ALL_BIGWIG = expand(os.path.join(config["output_dir"], "{sample}/tags/{sample}_Tn5_slop" + str(config["slop"]) + "_blacklisted.bw"), sample= meta.sample_list)
+ALL_PEAKS = expand(os.path.join(config["output_dir"], "{sample}/peaks/{sample}_ext{ext_size}_q{qvalue}_peaks.narrowPeak"), sample=meta.sample_list, ext_size = ["200", "40"], qvalue=["05", "01"])
+ALL_FRIPS = expand(os.path.join(config["output_dir"], "{sample}/qc/frip/{sample}_ext{ext_size}_q{qvalue}_FRIP.txt"), sample=meta.sample_list, ext_size = ["200", "40"], qvalue=["05", "01"])
+ALL_FRAG_DIST = expand(os.path.join(config["output_dir"], "{sample}/qc/fragment_dist/{sample}.tsv"), sample=meta.sample_list)
+ALL_CHROM_READ_COUNTS = expand(os.path.join(config["output_dir"], "{sample}/qc/chrom_counts/{sample}_chrom_read_counts.txt"), sample=meta.sample_list)
 
 shift_dict = {"40": "0", "200": "80"}
 
 rule all:
     input:  ALL_BIGWIG  + ALL_FLAGSTAT + ALL_FASTQC + ALL_PEAKS + ALL_FRIPS + ALL_FRAG_DIST + ALL_CHROM_READ_COUNTS
 
+rule get_fastq_pe_gz:
+    priority: 1
+    output:
+        # the wildcard name must be accession, pointing to an SRA number
+        os.path.join(config["input_dir"], "fasterq_dump/{accession}_1.fastq.gz"),
+        os.path.join(config["input_dir"], "fasterq_dump/{accession}_2.fastq.gz"),
+    log:
+        os.path.join(config["input_dir"], "logs/fasterq_dump/{accession}.log")
+    threads: 8  # defaults to 6
+    wrapper:
+        "0.77.0/bio/sra-tools/fasterq-dump"
+
+rule merge_replicates_fastq_PE:
+    input: 
+        R1 = meta.getReplicateFastq_pe1,
+        R2 = meta.getReplicateFastq_pe2
+
+    output:
+        R1_OUT = temp(os.path.join(config["output_dir"], "{sample}/merged_fastq/{sample}_1.fastq.gz")),
+        R2_OUT = temp(os.path.join(config["output_dir"], "{sample}/merged_fastq/{sample}_2.fastq.gz"))
+
+    threads: 2
+    message: "merging fastq files for R1: {input.R1} \n merging fastq files for R1: {input.R2}"
+    shell:
+        """
+        cat {input.R1} > {output.R1_OUT}
+        cat {input.R2} > {output.R2_OUT}
+        """
+
 # Use fastqc to get pre-trim stats on fastq
 rule fastqc_pre_trim:
-    input: os.path.join(config["fastq_dir"], "{sample}_{read}.fastq.gz")
+    input: os.path.join(config["output_dir"], "{sample}/merged_fastq/{sample}_{read}.fastq.gz")
 
     output:
         html=os.path.join(config["output_dir"], "{sample}/qc/fastqc/pre_trim/{sample}_{read}.html"),
@@ -48,8 +116,8 @@ rule fastqc_pre_trim:
 # Trim the fastq reads 
 rule trim_galore_pe:
     input:  
-        fq1=os.path.join(config["fastq_dir"], "{sample}_1.fastq.gz"),
-        fq2=os.path.join(config["fastq_dir"], "{sample}_2.fastq.gz")
+        fq1=os.path.join(config["output_dir"], "{sample}/merged_fastq/{sample}_1.fastq.gz"),
+        fq2=os.path.join(config["output_dir"], "{sample}/merged_fastq/{sample}_2.fastq.gz")
 
     output:
         os.path.join(config["output_dir"], "{sample}/trimmed_fastq/{sample}_1_val_1.fq.gz"),
