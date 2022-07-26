@@ -35,7 +35,7 @@ class MetaTable(object):
     def getCTName(self, wildcards):
         SRR_LIST = self.df[self.df["BIO_REP"] == wildcards.sample]["CELL_TYPE"]
 
-meta = MetaTable(config["meta_file"], config["fastq_dir"], config["output_dir"])
+meta = MetaTable(config["meta_file"], config["input_dir"], config["output_dir"])
 
 # Expand the names out per sample
 
@@ -70,10 +70,10 @@ rule get_fastq_pe_gz:
     priority: 1
     output:
         # the wildcard name must be accession, pointing to an SRA number
-        os.path.join(config["input_dir"], "fasterq_dump/{accession}_1.fastq.gz"),
-        os.path.join(config["input_dir"], "fasterq_dump/{accession}_2.fastq.gz"),
+        os.path.join(config["output_dir"], "fasterq_dump/{accession}_1.fastq.gz"),
+        os.path.join(config["output_dir"], "fasterq_dump/{accession}_2.fastq.gz"),
     log:
-        os.path.join(config["input_dir"], "logs/fasterq_dump/{accession}.log")
+        os.path.join(config["output_dir"], "logs/fasterq_dump/{accession}.log")
     threads: 8  # defaults to 6
     wrapper:
         "0.77.0/bio/sra-tools/fasterq-dump"
