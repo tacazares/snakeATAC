@@ -6,33 +6,25 @@ This pipeline was created from code developed by [Crazy Hot Tommy!](https://gith
 
 ## Installation
 
-This pipeline uses Anaconda.
+This pipeline uses Anaconda and Snakemake. Follow the [Snakemake install instructions](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html) for the best experience. Below is a brief overview of how to install Snakemake.
 
 ### Create environment
 
-Create a `conda` environment with:
+Create a `conda` environment and download `mamba`:
 
 ```bash
-conda create -n snakemake python=3.9
+conda install -n snakemake -c conda-forge -bioconda mamba snakemake
 ```
 
-Activate the environment:
+Activate the `snakemake` environment:
 
 ```bash
 conda activate snakemake
 ```
 
-### Install snakemake
-
-Pip install snakemake:
-
-```bash
-pip install snakemake
-```
-
 ### Clone the snakeATAC repository
 
-In your favorite repo directory clone the snakeATAC repo:
+In your favorite directory clone the snakeATAC repo:
 
 ```bash
 git clone https://github.com/tacazares/snakeATAC.git
@@ -48,57 +40,34 @@ You will need to modify the [config.yaml](docs/config_yaml.md) and create a [tab
 
 A detailed overview of the steps in the ATAC-seq data processing are found [here](docs/ATAC_processing.md).
 
-## Run snakeATAC
-
-1) Adjust the [config.yaml](docs/config_yaml.md) and the [tab-delimited sample meta file](docs/meta_file.md) for your specific experiment.
-2) Change to the directory containing the `Snakefile` and execute the following command where `{threads}` is the # of threads available:
-
-```bash
-snakemake --cores {threads} --use-conda --conda-frontend conda
-```
-
 ## Process GM12878 ATAC-seq data from [Corces (2017)](https://www.nature.com/articles/nmeth.4396) and [Buenrostro (2013)](https://www.nature.com/articles/nmeth.2688)
 
-This is a brief example of how to process ATAC-seq data from public sources. 
+This is a brief example of how to process ATAC-seq data from public sources. The SRA accession list for public GM12878 data is available at [./snakeATAC/inputs/GM12878_sample.tsv](./inputs/GM12878_sample.tsv).
 
-First, create a directory to store your fastq files. The SRA accession list for public GM12878 data is available at [./snakeATAC/inputs/GM12878_sample.tsv](./inputs/GM12878_sample.tsv).
+If you are running this pipeline for your first time, you will need to install all the `conda` environments used and perform a dry-run to make sure that everything was installed right.
 
-### Download fastq files
+1) Adjust the [config.yaml](docs/config_yaml.md) and the [tab-delimited sample meta file](docs/meta_file.md) for your specific experiment.
 
-First, download the fastq files from sra using `fasterq-dump`. [This](https://rnnh.github.io/bioinfo-notebook/docs/fasterq-dump.html) is a good overview for new users.
-
-Below is example code of how to download data from SRA using `fasterq-dump` and `pigz` for file compression.
+2) Change to the working directory for snakeATAC:
 
 ```bash
-# Make the directory where the fastq files will be stored
-mkdir -p ./data/fastq
-
-# Change into directory
-cd ./data/fastq
-
-# Loop through sample names and downlad
-for SRA in $(tail -n +2 ./inputs/GM12878_sample.tsv | cut -f1);
-do
-# Fastq dump
-fasterq-dump -e 6 -p ${SRA}
-
-# Compress fastq file
-pigz  ${SRA}*.fastq
-done
+cd ./snakeATAC/
 ```
 
-### Run snakemake
+3) Next, use the `--conda-create-envs-only` flag to create the environments.
 
-First, if you are running this pipeline for your first time, you will need to probably do a dry-run to make sure that everything was installed right. In order to do the dry-run, you will need to have your [`config.yaml`](docs/config_yaml.md) file and [`sample.tsv`](docs/meta_file.md) file correctly set up.
+```bash
+snakemake --cores 14 --use-conda --conda-frontend mamba --conda-create-envs-only --configfile config.yaml
+```
 
-1) Change to the working directory for snakeATAC:
+4) Test the workflow and scripts are correctly stet up by performing a dry-run with the `--dry-run` flag.
 
-   ```bash
-   cd ./snakeATAC/
-   ```
+```bash
+snakemake --cores 14 --use-conda --conda-frontend mamba  --configfile config.yaml --dry-run
+```
 
-2) Then you can run the full run using your favorite HPC system. I use LSF and below is an example script:
+5) Then you can run the full run using your favorite HPC system. I use LSF and below is an example script:
 
-   ```bash
-   snakemake --cores 24 --use-conda --conda-frontend conda
-   ```
+```bash
+snakemake --cores 14 --use-conda --conda-frontend mamba  --configfile config.yaml
+```

@@ -1,3 +1,6 @@
+import pandas as pd
+import os
+
 configfile: "./inputs/config.yaml"
 
 # This script was adapted from https://github.com/tacazares/pyflow-ATACseq
@@ -5,14 +8,11 @@ configfile: "./inputs/config.yaml"
 # computing nodes, this is for very small jobs
 localrules: all
 
-import pandas as pd
-import os
-
 class MetaTable(object):
     def __init__(self,
                  meta_path,
                  input_dir,
-                 output_dir:
+                 output_dir):
         self.df = pd.read_table(meta_path)
 
         self.input_dir = input_dir
@@ -25,17 +25,14 @@ class MetaTable(object):
     def getReplicateFastq_pe1(self, wildcards):
         TECH_REP_LIST = self.df[self.df["BIO_REP"] == wildcards.sample]["TECH_REP"]
         
-        return list(map(lambda tech_rep_id: os.path.join(self.input_dir, tech_rep_id + "_1.fastq.gz"), TECH_REP_LIST))
+        return list(map(lambda tech_rep_id: os.path.join(self.output_dir, "fasterq_dump", tech_rep_id + "_1.fastq.gz"), TECH_REP_LIST))
 
     def getReplicateFastq_pe2(self, wildcards):
         TECH_REP_LIST = self.df[self.df["BIO_REP"] == wildcards.sample]["TECH_REP"]
         
-        return list(map(lambda tech_rep_id: os.path.join(self.input_dir, tech_rep_id + "_2.fastq.gz"), TECH_REP_LIST))
+        return list(map(lambda tech_rep_id: os.path.join(self.output_dir, "fasterq_dump", tech_rep_id + "_2.fastq.gz"), TECH_REP_LIST))
     
-    def getCTName(self, wildcards):
-        SRR_LIST = self.df[self.df["BIO_REP"] == wildcards.sample]["CELL_TYPE"]
-
-meta = MetaTable(config["meta_file"], config["input_dir"], config["output_dir"])
+meta = MetaTable(meta_path=config["SAMPLES_TSV"], input_dir=config["input_dir"], output_dir=config["output_dir"])
 
 # Expand the names out per sample
 
@@ -379,6 +376,7 @@ rule macs2_call_peaks:
         macs2 callpeak -t {input} --name {params.NAME} -g {params.species} --outdir {params.PEAK_DIR} --nomodel --shift -{params.shift_size} --extsize {params.ext_size} --keep-dup=all -q 0.{params.qvalue} --SPMR
         """
 
+# Calculate the fraction of mapped reads that contribute to peaks
 rule calculate_frip:
     input: 
            os.path.join(config["output_dir"], "{sample}/tags/{sample}_Tn5_slop" + str(config["slop"]) + "_blacklisted.bed.gz"),
@@ -399,6 +397,7 @@ rule calculate_frip:
         sh ./scripts/frip.sh {input[0]} {input[1]} {output}
         """
 
+# Get the fragment size distribution
 rule deeptools_bamPEFragmentSize:
     input: os.path.join(config["output_dir"], "{sample}/alignments/{sample}.bam")
     
@@ -419,6 +418,7 @@ rule deeptools_bamPEFragmentSize:
         bamPEFragmentSize -b {input} -p {threads} --binSize {params.bin_size} --blackListFileName {params.blacklist} --outRawFragmentLengths {output}
         """
 
+# Get the counts per chromosome
 rule get_chrom_read_counts:
     input: os.path.join(config["output_dir"], "{sample}/alignments/{sample}.fixmate.bam")
 
