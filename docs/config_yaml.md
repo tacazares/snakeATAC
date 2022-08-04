@@ -1,14 +1,13 @@
-# config.yaml
+# Configuration `.yaml` files
 
-The `config.yaml` file defines the parameters for the run. The input `config.yaml` file must be in the inputs directory relative to the `Snakefile`. If you clone this directory from github, you will only need to modify the paths in the `config.yaml` file found in the `./inputs` directory.
+The [`config.yaml`](../inputs/config.yaml) and the cluster [`config.yaml`](../simple/config.yaml) files define the parameters for the run. The input `config.yaml` file must be in the [`inputs`](../inputs) directory relative to the `Snakefile` and is the only required `.yaml` file. The cluster `config.yaml` contains information specific to using Snakemake to submit jobs to the SLURM scheduler and can be found in the [`simple`](../simple/) directory.
 
-## Required Fields
+## `config.yaml`
 
 The `config.yaml` must contain the following fields:
 
-| variable         | description                                            |
+| Variable         | Description                                            |
 |------------------|--------------------------------------------------------|
-| `fastq_dir`      | Path to directory containing fastq files               |
 | `output_dir`     | Path to the output directory                           |
 | `idx_bt2`        | Path to the bowtie2 index                              |
 | `SAMPLES_TSV`    | Path to the sample meta file in `.tsv` format          |
@@ -21,16 +20,15 @@ The `config.yaml` must contain the following fields:
 
 Example:
 
-```bash
-# FASTQ directory
-fastq_dir: ./inputs/fastq
+```yaml
+# Output directory
 output_dir: ./outputs
 
 # Bowtie2 index
 idx_bt2: ./hg38/bowtie2_index/hg38
 
 # Path to a JSON file with samples and their corresponding FASTQ files.
-SAMPLES_TSV: './ATAC_test_sample.tsv'
+SAMPLES_TSV: './sample.tsv'
 
 # Path to chromosome sizes file
 chrom_sizes: "./genome_inf/hg38.22XY.chrom.sizes"
@@ -49,4 +47,38 @@ million_factor: 1000000
 
 # List of chromosomes to limit the study to
 keepChr: 'chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 chr20 chr21 chr22'
+```
+
+## Cluster `config.yaml` for use with SLURM
+
+The cluster [`config.yaml`](../simple/config.yaml) is used to define default cluster configurations if you want to use Snakemake to submit jobs for you. If the rules do not have a resource limit described, they will default to these values when the job is submitted. This information is expanded on in the [jdblischak/smk-simple-slur repo](https://github.com/jdblischak/smk-simple-slurm).
+
+Example:
+
+```yaml
+cluster:
+  mkdir -p logs/{rule} &&
+  sbatch
+    --cpus-per-task={threads}
+    --mem={resources.mem_mb}
+    --job-name=smk-{rule}-{wildcards}
+    --account={YOUR_ACCOUNT}
+    --output=logs/{rule}/{rule}-{wildcards}-%j.out
+    --time={resources.time}
+    --parsable
+default-resources:
+  - time="12:00:00"
+  - mem_mb=32000
+restart-times: 3
+max-jobs-per-second: 1
+max-status-checks-per-second: 1
+local-cores: 1
+latency-wait: 60
+jobs: 15
+keep-going: True
+rerun-incomplete: True
+printshellcmds: True
+scheduler: greedy
+use-conda: True
+cluster-status: status-sacct.sh
 ```
