@@ -1,16 +1,10 @@
-# ATAC-seq Data Processing
+# snakeATAC Overview
 
 ## Retrieving Public ATAC-seq Data: From SRA to Fastq
 
-### SRA Files and File Requirements
+The first step in snakeATAC is to retrieve data from SRA. 
 
-I used SRAtoolkit to download the SRA file and then convert it to a fastq file. A `.sra` file is an archival format of the sequencing data used by NCBI to store the output of sequencing machines. We want to download the the publicly available sequencing data from the Short Read Archive (SRA) maintained by NCBI. The Gene Expression Omnibus (GEO) is a database that catalogues experimental data such as sequencing data, data analysis, and expression data to study gene expression. It helps to organize the SRA files into coherent experiments.
-
-### Paired-End Sequencing vs Single-End Sequencing
-
-I only use paired-end data. This is because paired-end data provides us information about sequencing fragment size distributions that can be used to infer nucleosome positioning. In the original ATAC-seq paper from Buenrostro et al., the position of nucleosomes could be inferred based on the lengths of sequencing fragments produced from ATAC-seq data. PE sequencing is becoming the standard for ATAC-seq and is the data type that we will focus on. My other rationale is that paired-end sequencing will help resolve ambiguous reads or reads that are harder to place. This will be an advantage to ATAC-seq data analysis because open regions of chromatin can fall in repetitive regions or regions with structural variations making SE reads harder to place. Here is the Illumina reference for PE vs SE sequencing: [Paired-end video explanation](https://www.illumina.com/science/technology/next-generation-sequencing/plan-experiments/paired-end-vs-single-read.html).
-
-### SRA Prefetch and Fasterq-dump
+### `get_fastq_pe_gz`
 
 The SRA database has an associated tool called the SRAtoolkit. This toolkit has commands like `prefetch` and `fastq-dump` that can be used to retrieve publicly available sequencing data. We use SRA `prefetch` to pre-download the SRA file to our system. Then we use `fasterq-dump` to convert the SRA file to fastq format. The `prefetch` to `fastq-dump` workflow allows for pre-downloading SRA files and converting those files locally as needed.
 
