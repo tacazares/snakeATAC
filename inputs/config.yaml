@@ -1,5 +1,4 @@
-# FASTQ directory
-fastq_dir: ./inputs/fastq
+# Output directory for writing results
 output_dir: ./outputs
 
 # Bowtie2 index
@@ -18,7 +17,7 @@ blacklist: "./genome_inf/hg38_maxatac_blacklist_merged.bed"
 slop: 20
 
 # What is the millions factor that you want to use to scale the read counts
-million_factor: 1000000
+million_factor: 20000000
 
 # MACS2 species
 species: "hs"

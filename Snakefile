@@ -11,35 +11,28 @@ localrules: all
 class MetaTable(object):
     def __init__(self,
                  meta_path,
-                 input_dir,
                  output_dir):
         self.df = pd.read_table(meta_path)
 
-        self.input_dir = input_dir
         self.output_dir = output_dir
 
-        self.all_tech_reps = self.df["TECH_REP"].unique().tolist()
+        self.all_tech_reps = self.df["srr"].unique().tolist()
 
-        self.sample_list = self.df["BIO_REP"].unique().tolist()
+        self.sample_list = self.df["srx"].unique().tolist()
 
     def getReplicateFastq_pe1(self, wildcards):
-        TECH_REP_LIST = self.df[self.df["BIO_REP"] == wildcards.sample]["TECH_REP"]
+        TECH_REP_LIST = self.df[self.df["srx"] == wildcards.sample]["srr"]
         
         return list(map(lambda tech_rep_id: os.path.join(self.output_dir, "fasterq_dump", tech_rep_id + "_1.fastq.gz"), TECH_REP_LIST))
 
     def getReplicateFastq_pe2(self, wildcards):
-        TECH_REP_LIST = self.df[self.df["BIO_REP"] == wildcards.sample]["TECH_REP"]
+        TECH_REP_LIST = self.df[self.df["srx"] == wildcards.sample]["srr"]
         
         return list(map(lambda tech_rep_id: os.path.join(self.output_dir, "fasterq_dump", tech_rep_id + "_2.fastq.gz"), TECH_REP_LIST))
     
-meta = MetaTable(meta_path=config["SAMPLES_TSV"], input_dir=config["input_dir"], output_dir=config["output_dir"])
+meta = MetaTable(meta_path=config["SAMPLES_TSV"], output_dir=config["output_dir"])
 
 # Expand the names out per sample
-
-## Build the SRR file names for each replicate
-SRR_FASTQ1 = expand(os.path.join(config["input_dir"], "fasterq_dump", "{accession}_1.fastq.gz"), accession = meta.all_tech_reps)
-SRR_FASTQ2 = expand(os.path.join(config["input_dir"], "fasterq_dump", "{accession}_2.fastq.gz"), accession = meta.all_tech_reps)
-
 ## Build the merged FASTQ file names
 MERGED_FASTQ = expand(config["output_dir"] + "/{sample}/merged_fastq/{sample}_{read}.fastq.gz", sample = meta.sample_list, read = [1,2])
 
@@ -49,14 +42,16 @@ ALL_FASTQC  = expand(os.path.join(config["output_dir"], "{sample}/qc/fastqc/{typ
 ## Build the trimming FASTQ file names
 ALL_TRIMMED_FASTQ = expand(os.path.join(config["output_dir"], "{sample}/trimmed_fastq/{sample}_{read}_val_{read}.fq.gz"), sample = meta.sample_list, read = ["1", "2"])
 
-## Build names for BAM file
+## Build BAM, BIGWIG, and peak names
 ALL_BAM = expand(os.path.join(config["output_dir"], "{sample}/alignments/{sample}.bam"), sample = meta.sample_list)
-ALL_FLAGSTAT = expand(os.path.join(config["output_dir"], "{sample}/flagstat/{sample}.{type}.flagstat"), sample = meta.sample_list, type= ["sam", "final_bam"])
 ALL_BIGWIG = expand(os.path.join(config["output_dir"], "{sample}/tags/{sample}_Tn5_slop" + str(config["slop"]) + "_blacklisted.bw"), sample= meta.sample_list)
 ALL_PEAKS = expand(os.path.join(config["output_dir"], "{sample}/peaks/{sample}_ext{ext_size}_q{qvalue}_peaks.narrowPeak"), sample=meta.sample_list, ext_size = ["200", "40"], qvalue=["05", "01"])
+
+# Get QC metrics
 ALL_FRIPS = expand(os.path.join(config["output_dir"], "{sample}/qc/frip/{sample}_ext{ext_size}_q{qvalue}_FRIP.txt"), sample=meta.sample_list, ext_size = ["200", "40"], qvalue=["05", "01"])
 ALL_FRAG_DIST = expand(os.path.join(config["output_dir"], "{sample}/qc/fragment_dist/{sample}.tsv"), sample=meta.sample_list)
 ALL_CHROM_READ_COUNTS = expand(os.path.join(config["output_dir"], "{sample}/qc/chrom_counts/{sample}_chrom_read_counts.txt"), sample=meta.sample_list)
+ALL_FLAGSTAT = expand(os.path.join(config["output_dir"], "{sample}/flagstat/{sample}.{type}.flagstat"), sample = meta.sample_list, type= ["sam", "final_bam"])
 
 shift_dict = {"40": "0", "200": "80"}
 
@@ -66,7 +61,7 @@ rule all:
 rule get_fastq_pe_gz:
     priority: 1
     output:
-        # the wildcard name must be accession, pointing to an SRA number
+        # the wildcard name must be accession, pointing to an srr ID
         os.path.join(config["output_dir"], "fasterq_dump/{accession}_1.fastq.gz"),
         os.path.join(config["output_dir"], "fasterq_dump/{accession}_2.fastq.gz"),
     log:

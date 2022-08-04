@@ -1,18 +1,13 @@
 # Meta file
 
-The meta file is a `.tsv` file that has 1 fastq filename prefix per row.
+This pipeline was developed to download data from SRA and process it in parallel. The meta file and all of the data assume that you are wanting to download the data for process. If you want to use your own data, you will need to manipulate the meta file and directory structure so that you skip `fasterq-dump` and proceed to read trimming.
 
-The code will use the filename prefix to find the fastq files that are to be processed. This pipeline assumes that your filenames end with `{filename}_1.fastq.gz` and `{filename}_1.fastq.gz`.
+The meta file is a `.tsv` file that has at least two columns named `srx` and `srr`. The biological replicate is considered the `srx` ID and the technical replicate is considered the `srr` ID. If you have more than one `srr` ID per `srx` ID the technical replicates will be merged into a single `srx` based output. The code will use the `srr` ID to download the `.fastq` files that are to be processed. Right now you must provide all the `srr` ID values for a `srx` ID on your own.
+
+Example meta file:
 
 ```tsv
-Sample_ID
-SRX298000
-SRX298001
-```
-
-These files should be located in the directory that is being pointed to by the `fastq_dir` variable in the `config.yaml` file: 
-
-```yaml
-# FASTQ directory
-fastq_dir: ./inputs/fastq
+srr	srx
+SRR5427886	SRX2717911
+SRR5427887	SRX2717912
 ```
