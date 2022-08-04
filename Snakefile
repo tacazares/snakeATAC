@@ -71,7 +71,8 @@ rule get_fastq_pe_gz:
         os.path.join(config["output_dir"], "fasterq_dump/{accession}_2.fastq.gz"),
     log:
         os.path.join(config["output_dir"], "logs/fasterq_dump/{accession}.log")
-    threads: 8  # defaults to 6
+    threads: 6  # defaults to 6
+    message: "Downloading fastq files for R1: {output[0]} and R2: {output[1]}"
     wrapper:
         "0.77.0/bio/sra-tools/fasterq-dump"
 
@@ -85,7 +86,7 @@ rule merge_replicates_fastq_PE:
         R2_OUT = temp(os.path.join(config["output_dir"], "{sample}/merged_fastq/{sample}_2.fastq.gz"))
 
     threads: 2
-    message: "merging fastq files for R1: {input.R1} \n merging fastq files for R1: {input.R2}"
+    message: "Merging fastq files {input.R1} and {input.R2}"
     shell:
         """
         cat {input.R1} > {output.R1_OUT}
@@ -101,6 +102,7 @@ rule fastqc_pre_trim:
         zip=os.path.join(config["output_dir"], "{sample}/qc/fastqc/pre_trim/{sample}_{read}_fastqc.zip") # the suffix _fastqc.zip is necessary for multiqc to find the file. If not using multiqc, you are free to choose an arbitrary filename
 
     params: "--quiet"
+    message: "Using FastQC to read QC metrics in fastq file {input}"
 
     log:
         os.path.join(config["output_dir"], "{sample}/logs/fastqc/{sample}_{read}_pre_trim.log")
@@ -146,6 +148,7 @@ rule fastqc_post_trim:
         zip=os.path.join(config["output_dir"], "{sample}/qc/fastqc/post_trim/{sample}_{read}_fastqc.zip") # the suffix _fastqc.zip is necessary for multiqc to find the file. If not using multiqc, you are free to choose an arbitrary filename
 
     params: "--quiet"
+    message: "Using FastQC to read QC metrics in fastq file {input}"
 
     log:
         os.path.join(config["output_dir"], "{sample}/logs/fastqc/{sample}_{read}_post_trim.log")
@@ -167,7 +170,7 @@ rule bowtie2_align_PE:
 
     params: bowtie = "--very-sensitive --maxins 2000"
 
-    message: "Align reads with bowtie2 {input}: {threads} threads"
+    message: "Aligning reads with bowtie2 {input}: {threads} threads"
 
     conda: "./envs/bowtie2.yaml"
 
@@ -219,6 +222,7 @@ rule fixmates_pre_dedup:
 
     shell:
         """
+        # Add mate information to reads for deduplication
         samtools fixmate -@ {threads} -r -m {input} - 2> {log} | \
         samtools sort -@ {threads} -o {output.fixmate_bam} - 2> {log}
         
@@ -247,6 +251,7 @@ rule remove_PCR_duplicates:
 
     shell:
         """
+        # use markdup to remove PCR duplicates
         samtools markdup -@ {threads} -r -s {input} - 2> {log} | \
         samtools sort -@ {threads} -o {output.dedup_bam} - 2> {log}
 
@@ -388,7 +393,7 @@ rule calculate_frip:
 
     threads: 4
 
-    message: "calulate frip"
+    message: "Calulating FRIP"
 
     conda: "./envs/bedtools.yaml"
 
@@ -402,7 +407,8 @@ rule deeptools_bamPEFragmentSize:
     input: os.path.join(config["output_dir"], "{sample}/alignments/{sample}.bam")
     
     output: os.path.join(config["output_dir"], "{sample}/qc/fragment_dist/{sample}.tsv")
-    
+    message: "Calulating fragment size distribution with DeepTools"
+  
     params:
         bin_size = 1,
         blacklist = config["blacklist"]
@@ -423,6 +429,7 @@ rule get_chrom_read_counts:
     input: os.path.join(config["output_dir"], "{sample}/alignments/{sample}.fixmate.bam")
 
     output: os.path.join(config["output_dir"], "{sample}/qc/chrom_counts/{sample}_chrom_read_counts.txt")
+    message: "Counting reads per chromosome."
     
     threads: 4
 
