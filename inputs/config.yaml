@@ -1,17 +1,20 @@
+# FASTQ directory where data-to-be-processed is located
+fastq_dir: ##path to fastq files to process##
+
 # Output directory for writing results
-output_dir: ./outputs
+output_dir: ##path to output##
 
 # Bowtie2 index
-idx_bt2: ./hg38/bowtie2_index/hg38
+idx_bt2: ##path to bowtie2 index##
 
 # Path to a TSV file with samples and their corresponding FASTQ file paths.
 SAMPLES_TSV: './sample.tsv'
 
 # Path to chromosome sizes file
-chrom_sizes: "./genome_inf/hg38.22XY.chrom.sizes"
+chrom_sizes: ##path to .chrom.sizes file##
 
 # Path to blacklisted regions file
-blacklist: "./genome_inf/hg38_maxatac_blacklist_merged.bed"
+blacklist: ##path to blacklist in .bed format##
 
 # Slop size to use around the Tn5 insertion sites
 slop: 20
@@ -20,7 +23,9 @@ slop: 20
 million_factor: 20000000
 
 # MACS2 species
+## current species configured for: (hs, mm) ##
 species: "hs"
 
 # List of chromosomes to limit the study to
+## default for hs. Remove chr20 through chr22 for mm ##
 keepChr: 'chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 chr20 chr21 chr22 chrX chrY'

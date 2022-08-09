@@ -1,0 +1,17 @@
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - r-base=4.1.1
+  - r-tidyverse
+  - r-devtools
+  - r-ggplot2
+  - r-biocmanager 
+  - bioconductor-atacseqqc=1.18.0
+  - bioconductor-txdb.mmusculus.ucsc.mm10.knowngene
+  - bioconductor-txdb.hsapiens.ucsc.hg38.knowngene
+  - bioconductor-rsamtools
+  - bioconductor-bsgenome.mmusculus.ucsc.mm10
+  - bioconductor-bsgenome.hsapiens.ucsc.hg38
+  - bioconductor-chippeakanno
+  - bioconductor-genomicalignments
