@@ -27,7 +27,7 @@ conda install -n snakeatac -c conda-forge bioconda mamba snakemake
 ```
 ### I think it should be this 
 ```bash
-conda create -n snakeatac -c conda-forge bioconda mamba snakemake python=3.9
+conda create -n snakeatac -c conda-forge mamba snakemake python=3.9
 ```
 
 Activate the `snakeatac` environment:
