@@ -23,7 +23,7 @@ This pipeline uses Anaconda and Snakemake. Follow the [Snakemake install instruc
 Create a `conda` environment and download `mamba`:
 
 ```bash
-conda install -n snakeatac -c conda-forge bioconda mamba snakemake
+conda create -n snakeatac -c conda-forge -c bioconda mamba snakemake
 ```
 ### I think it should be this 
 ```bash
@@ -80,7 +80,7 @@ snakemake --cores 14 --use-conda --conda-frontend mamba  --configfile ./inputs/c
 
 ## Use Snakemake to submit jobs through SLURM
 
-If you want to use Snakemake to submit jobs to slurm, you will need to follow the instruction described by [jdblischak/smk-simple-slur repo](https://github.com/jdblischak/smk-simple-slurm). The directory and scripts are included in this repository, but you will need to adjust the `account` information. You can also adjust any defaults that you wish to use with your job submissions.
+If you want to use Snakemake to submit jobs to slurm, you will need to follow the instruction described by [jdblischak/smk-simple-slur repo](https://github.com/jdblischak/smk-simple-slurm). The directory and scripts are included in this repository, but you will need to adjust the `account` information. You can also adjust any defaults that you wish to use with your job submissions. NOTE: You will need to use `chmod +x status-sacct.sh` to make the script executable.
 
 Example `.bat` file to drive the snakeATAC workflow
 
