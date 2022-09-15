@@ -1,0 +1,204 @@
+Config file ./inputs/config.yaml is extended by additional config specified via the command line.
+Building DAG of jobs...
+Your conda installation is not configured to use strict channel priorities. This is however crucial for having robust and correct environments (for details, see https://conda-forge.org/docs/user/tipsandtricks.html). Please consider to configure strict priorities by executing 'conda config --set channel_priority strict'.
+Using shell: /usr/bin/bash
+Provided cores: 12
+Rules claiming more threads will be scaled down.
+Provided resources: mem_mb=64000, disk_mb=2774
+Select jobs to execute...
+
+[Mon Aug 29 20:54:37 2022]
+Job 0: call peaks /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10476526/tags/SRX10476526_Tn5_slop20_blacklisted.bed.gz: 4 threads
+Reason: Forced execution
+
+
+        macs2 callpeak -t /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10476526/tags/SRX10476526_Tn5_slop20_blacklisted.bed.gz --name SRX10476526_ext40_q01 -g hs --outdir /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10476526/peaks --nomodel --shift -0 --extsize 40 --keep-dup=all -q 0.01 --SPMR
+        
+Activating conda environment: .snakemake/conda/0fe9a3ab3b2fffbf3123be07e9758025
+INFO  @ Mon, 29 Aug 2022 20:54:42: 
+# Command line: callpeak -t /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10476526/tags/SRX10476526_Tn5_slop20_blacklisted.bed.gz --name SRX10476526_ext40_q01 -g hs --outdir /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10476526/peaks --nomodel --shift -0 --extsize 40 --keep-dup=all -q 0.01 --SPMR
+# ARGUMENTS LIST:
+# name = SRX10476526_ext40_q01
+# format = AUTO
+# ChIP-seq file = ['/fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10476526/tags/SRX10476526_Tn5_slop20_blacklisted.bed.gz']
+# control file = None
+# effective genome size = 2.70e+09
+# band width = 300
+# model fold = [5, 50]
+# qvalue cutoff = 1.00e-02
+# The maximum gap between significant sites is assigned as the read length/tag size.
+# The minimum length of peaks is assigned as the predicted fragment length "d".
+# Larger dataset will be scaled towards smaller dataset.
+# Range for calculating regional lambda is: 10000 bps
+# Broad region calling is off
+# Paired-End mode is off
+ 
+INFO  @ Mon, 29 Aug 2022 20:54:42: #1 read tag files... 
+INFO  @ Mon, 29 Aug 2022 20:54:42: #1 read treatment tags... 
+INFO  @ Mon, 29 Aug 2022 20:54:42: Detected format is: BED 
+INFO  @ Mon, 29 Aug 2022 20:54:42: * Input file is gzipped. 
+INFO  @ Mon, 29 Aug 2022 20:54:43:  1000000 
+INFO  @ Mon, 29 Aug 2022 20:54:44:  2000000 
+INFO  @ Mon, 29 Aug 2022 20:54:45:  3000000 
+INFO  @ Mon, 29 Aug 2022 20:54:46:  4000000 
+INFO  @ Mon, 29 Aug 2022 20:54:47:  5000000 
+INFO  @ Mon, 29 Aug 2022 20:54:48:  6000000 
+INFO  @ Mon, 29 Aug 2022 20:54:49:  7000000 
+INFO  @ Mon, 29 Aug 2022 20:54:50:  8000000 
+INFO  @ Mon, 29 Aug 2022 20:54:51:  9000000 
+INFO  @ Mon, 29 Aug 2022 20:54:52:  10000000 
+INFO  @ Mon, 29 Aug 2022 20:54:53:  11000000 
+INFO  @ Mon, 29 Aug 2022 20:54:54:  12000000 
+INFO  @ Mon, 29 Aug 2022 20:54:55:  13000000 
+INFO  @ Mon, 29 Aug 2022 20:54:56:  14000000 
+INFO  @ Mon, 29 Aug 2022 20:54:57:  15000000 
+INFO  @ Mon, 29 Aug 2022 20:54:58:  16000000 
+INFO  @ Mon, 29 Aug 2022 20:54:59:  17000000 
+INFO  @ Mon, 29 Aug 2022 20:55:00:  18000000 
+INFO  @ Mon, 29 Aug 2022 20:55:01:  19000000 
+INFO  @ Mon, 29 Aug 2022 20:55:02:  20000000 
+INFO  @ Mon, 29 Aug 2022 20:55:03:  21000000 
+INFO  @ Mon, 29 Aug 2022 20:55:04:  22000000 
+INFO  @ Mon, 29 Aug 2022 20:55:05:  23000000 
+INFO  @ Mon, 29 Aug 2022 20:55:06:  24000000 
+INFO  @ Mon, 29 Aug 2022 20:55:07:  25000000 
+INFO  @ Mon, 29 Aug 2022 20:55:08:  26000000 
+INFO  @ Mon, 29 Aug 2022 20:55:09:  27000000 
+INFO  @ Mon, 29 Aug 2022 20:55:10:  28000000 
+INFO  @ Mon, 29 Aug 2022 20:55:11:  29000000 
+INFO  @ Mon, 29 Aug 2022 20:55:12:  30000000 
+INFO  @ Mon, 29 Aug 2022 20:55:13:  31000000 
+INFO  @ Mon, 29 Aug 2022 20:55:14:  32000000 
+INFO  @ Mon, 29 Aug 2022 20:55:15:  33000000 
+INFO  @ Mon, 29 Aug 2022 20:55:16:  34000000 
+INFO  @ Mon, 29 Aug 2022 20:55:17:  35000000 
+INFO  @ Mon, 29 Aug 2022 20:55:18:  36000000 
+INFO  @ Mon, 29 Aug 2022 20:55:19:  37000000 
+INFO  @ Mon, 29 Aug 2022 20:55:20:  38000000 
+INFO  @ Mon, 29 Aug 2022 20:55:21:  39000000 
+INFO  @ Mon, 29 Aug 2022 20:55:22:  40000000 
+INFO  @ Mon, 29 Aug 2022 20:55:23:  41000000 
+INFO  @ Mon, 29 Aug 2022 20:55:24:  42000000 
+INFO  @ Mon, 29 Aug 2022 20:55:25:  43000000 
+INFO  @ Mon, 29 Aug 2022 20:55:25:  44000000 
+INFO  @ Mon, 29 Aug 2022 20:55:26:  45000000 
+INFO  @ Mon, 29 Aug 2022 20:55:27:  46000000 
+INFO  @ Mon, 29 Aug 2022 20:55:28:  47000000 
+INFO  @ Mon, 29 Aug 2022 20:55:29:  48000000 
+INFO  @ Mon, 29 Aug 2022 20:55:30:  49000000 
+INFO  @ Mon, 29 Aug 2022 20:55:31:  50000000 
+INFO  @ Mon, 29 Aug 2022 20:55:32:  51000000 
+INFO  @ Mon, 29 Aug 2022 20:55:33:  52000000 
+INFO  @ Mon, 29 Aug 2022 20:55:34:  53000000 
+INFO  @ Mon, 29 Aug 2022 20:55:35:  54000000 
+INFO  @ Mon, 29 Aug 2022 20:55:36:  55000000 
+INFO  @ Mon, 29 Aug 2022 20:55:37:  56000000 
+INFO  @ Mon, 29 Aug 2022 20:55:38:  57000000 
+INFO  @ Mon, 29 Aug 2022 20:55:39:  58000000 
+INFO  @ Mon, 29 Aug 2022 20:55:40:  59000000 
+INFO  @ Mon, 29 Aug 2022 20:55:41:  60000000 
+INFO  @ Mon, 29 Aug 2022 20:55:42:  61000000 
+INFO  @ Mon, 29 Aug 2022 20:55:43:  62000000 
+INFO  @ Mon, 29 Aug 2022 20:55:44:  63000000 
+INFO  @ Mon, 29 Aug 2022 20:55:45:  64000000 
+INFO  @ Mon, 29 Aug 2022 20:55:46:  65000000 
+INFO  @ Mon, 29 Aug 2022 20:55:47:  66000000 
+INFO  @ Mon, 29 Aug 2022 20:55:48:  67000000 
+INFO  @ Mon, 29 Aug 2022 20:55:49:  68000000 
+INFO  @ Mon, 29 Aug 2022 20:55:50:  69000000 
+INFO  @ Mon, 29 Aug 2022 20:55:51:  70000000 
+INFO  @ Mon, 29 Aug 2022 20:55:52:  71000000 
+INFO  @ Mon, 29 Aug 2022 20:55:53:  72000000 
+INFO  @ Mon, 29 Aug 2022 20:55:54:  73000000 
+INFO  @ Mon, 29 Aug 2022 20:55:55:  74000000 
+INFO  @ Mon, 29 Aug 2022 20:55:56:  75000000 
+INFO  @ Mon, 29 Aug 2022 20:55:57:  76000000 
+INFO  @ Mon, 29 Aug 2022 20:55:58:  77000000 
+INFO  @ Mon, 29 Aug 2022 20:55:59:  78000000 
+INFO  @ Mon, 29 Aug 2022 20:56:00:  79000000 
+INFO  @ Mon, 29 Aug 2022 20:56:01:  80000000 
+INFO  @ Mon, 29 Aug 2022 20:56:02:  81000000 
+INFO  @ Mon, 29 Aug 2022 20:56:03:  82000000 
+INFO  @ Mon, 29 Aug 2022 20:56:04:  83000000 
+INFO  @ Mon, 29 Aug 2022 20:56:05:  84000000 
+INFO  @ Mon, 29 Aug 2022 20:56:06:  85000000 
+INFO  @ Mon, 29 Aug 2022 20:56:07:  86000000 
+INFO  @ Mon, 29 Aug 2022 20:56:08:  87000000 
+INFO  @ Mon, 29 Aug 2022 20:56:09:  88000000 
+INFO  @ Mon, 29 Aug 2022 20:56:10:  89000000 
+INFO  @ Mon, 29 Aug 2022 20:56:11:  90000000 
+INFO  @ Mon, 29 Aug 2022 20:56:12:  91000000 
+INFO  @ Mon, 29 Aug 2022 20:56:13:  92000000 
+INFO  @ Mon, 29 Aug 2022 20:56:14:  93000000 
+INFO  @ Mon, 29 Aug 2022 20:56:15:  94000000 
+INFO  @ Mon, 29 Aug 2022 20:56:15:  95000000 
+INFO  @ Mon, 29 Aug 2022 20:56:16:  96000000 
+INFO  @ Mon, 29 Aug 2022 20:56:17:  97000000 
+INFO  @ Mon, 29 Aug 2022 20:56:18:  98000000 
+INFO  @ Mon, 29 Aug 2022 20:56:19:  99000000 
+INFO  @ Mon, 29 Aug 2022 20:56:20:  100000000 
+INFO  @ Mon, 29 Aug 2022 20:56:21:  101000000 
+INFO  @ Mon, 29 Aug 2022 20:56:22:  102000000 
+INFO  @ Mon, 29 Aug 2022 20:56:23:  103000000 
+INFO  @ Mon, 29 Aug 2022 20:56:24:  104000000 
+INFO  @ Mon, 29 Aug 2022 20:56:25:  105000000 
+INFO  @ Mon, 29 Aug 2022 20:56:26:  106000000 
+INFO  @ Mon, 29 Aug 2022 20:56:27:  107000000 
+INFO  @ Mon, 29 Aug 2022 20:56:28:  108000000 
+INFO  @ Mon, 29 Aug 2022 20:56:29:  109000000 
+INFO  @ Mon, 29 Aug 2022 20:56:30:  110000000 
+INFO  @ Mon, 29 Aug 2022 20:56:31:  111000000 
+INFO  @ Mon, 29 Aug 2022 20:56:32:  112000000 
+INFO  @ Mon, 29 Aug 2022 20:56:33:  113000000 
+INFO  @ Mon, 29 Aug 2022 20:56:34:  114000000 
+INFO  @ Mon, 29 Aug 2022 20:56:35:  115000000 
+INFO  @ Mon, 29 Aug 2022 20:56:36:  116000000 
+INFO  @ Mon, 29 Aug 2022 20:56:37:  117000000 
+INFO  @ Mon, 29 Aug 2022 20:56:38:  118000000 
+INFO  @ Mon, 29 Aug 2022 20:56:39:  119000000 
+INFO  @ Mon, 29 Aug 2022 20:56:40:  120000000 
+INFO  @ Mon, 29 Aug 2022 20:56:41:  121000000 
+INFO  @ Mon, 29 Aug 2022 20:56:42:  122000000 
+INFO  @ Mon, 29 Aug 2022 20:56:43:  123000000 
+INFO  @ Mon, 29 Aug 2022 20:56:44:  124000000 
+INFO  @ Mon, 29 Aug 2022 20:56:45:  125000000 
+INFO  @ Mon, 29 Aug 2022 20:56:46:  126000000 
+INFO  @ Mon, 29 Aug 2022 20:56:47:  127000000 
+INFO  @ Mon, 29 Aug 2022 20:56:48:  128000000 
+INFO  @ Mon, 29 Aug 2022 20:56:49:  129000000 
+INFO  @ Mon, 29 Aug 2022 20:56:50:  130000000 
+INFO  @ Mon, 29 Aug 2022 20:56:51:  131000000 
+INFO  @ Mon, 29 Aug 2022 20:56:52:  132000000 
+INFO  @ Mon, 29 Aug 2022 20:56:53:  133000000 
+INFO  @ Mon, 29 Aug 2022 20:56:54:  134000000 
+INFO  @ Mon, 29 Aug 2022 20:56:55:  135000000 
+INFO  @ Mon, 29 Aug 2022 20:56:56:  136000000 
+INFO  @ Mon, 29 Aug 2022 20:56:57:  137000000 
+INFO  @ Mon, 29 Aug 2022 20:56:57:  138000000 
+INFO  @ Mon, 29 Aug 2022 20:56:58:  139000000 
+INFO  @ Mon, 29 Aug 2022 20:56:59:  140000000 
+INFO  @ Mon, 29 Aug 2022 20:57:00:  141000000 
+INFO  @ Mon, 29 Aug 2022 20:57:01:  142000000 
+INFO  @ Mon, 29 Aug 2022 20:57:02:  143000000 
+INFO  @ Mon, 29 Aug 2022 20:57:03:  144000000 
+INFO  @ Mon, 29 Aug 2022 20:57:04:  145000000 
+INFO  @ Mon, 29 Aug 2022 20:57:05:  146000000 
+INFO  @ Mon, 29 Aug 2022 20:57:06:  147000000 
+INFO  @ Mon, 29 Aug 2022 20:57:07:  148000000 
+INFO  @ Mon, 29 Aug 2022 20:57:09: #1 tag size is determined as 41 bps 
+INFO  @ Mon, 29 Aug 2022 20:57:09: #1 tag size = 41.0 
+INFO  @ Mon, 29 Aug 2022 20:57:09: #1  total tags in treatment: 148111130 
+INFO  @ Mon, 29 Aug 2022 20:57:09: #1 finished! 
+INFO  @ Mon, 29 Aug 2022 20:57:09: #2 Build Peak Model... 
+INFO  @ Mon, 29 Aug 2022 20:57:09: #2 Skipped... 
+INFO  @ Mon, 29 Aug 2022 20:57:09: #2 Use 40 as fragment length 
+INFO  @ Mon, 29 Aug 2022 20:57:09: #3 Call peaks... 
+INFO  @ Mon, 29 Aug 2022 20:57:09: #3 Pre-compute pvalue-qvalue table... 
+INFO  @ Mon, 29 Aug 2022 21:01:48: #3 Call peaks for each chromosome... 
+INFO  @ Mon, 29 Aug 2022 21:04:16: #4 Write output xls file... /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10476526/peaks/SRX10476526_ext40_q01_peaks.xls 
+INFO  @ Mon, 29 Aug 2022 21:04:17: #4 Write peak in narrowPeak format file... /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10476526/peaks/SRX10476526_ext40_q01_peaks.narrowPeak 
+INFO  @ Mon, 29 Aug 2022 21:04:18: #4 Write summits bed file... /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10476526/peaks/SRX10476526_ext40_q01_summits.bed 
+INFO  @ Mon, 29 Aug 2022 21:04:18: Done! 
+[Mon Aug 29 21:04:18 2022]
+Finished job 0.
+1 of 1 steps (100%) done

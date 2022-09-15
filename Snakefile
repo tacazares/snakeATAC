@@ -53,10 +53,13 @@ ALL_FRAG_DIST = expand(os.path.join(config["output_dir"], "{sample}/qc/fragment_
 ALL_CHROM_READ_COUNTS = expand(os.path.join(config["output_dir"], "{sample}/qc/chrom_counts/{sample}_chrom_read_counts.txt"), sample=meta.sample_list)
 ALL_FLAGSTAT = expand(os.path.join(config["output_dir"], "{sample}/flagstat/{sample}.{type}.flagstat"), sample = meta.sample_list, type= ["sam", "final_bam"])
 
+## Build All Strands
+ALL_STRAND = expand(os.path.join(config["output_dir"], "{sample}/tags/{sample}_Tn5_slop" + str(config["slop"]) + "_{strand}Strand_blacklisted.bed.gz"), sample=meta.sample_list, strand = ["pos", "neg"])
+
 shift_dict = {"40": "0", "200": "80"}
 
 rule all:
-    input:  ALL_BIGWIG  + ALL_FLAGSTAT + ALL_FASTQC + ALL_PEAKS + ALL_FRIPS + ALL_FRAG_DIST + ALL_CHROM_READ_COUNTS
+    input:  ALL_BIGWIG  + ALL_FLAGSTAT + ALL_FASTQC + ALL_PEAKS + ALL_FRIPS + ALL_FRAG_DIST + ALL_CHROM_READ_COUNTS + ALL_STRAND
 
 rule get_fastq_pe_gz:
     priority: 1
@@ -324,18 +327,39 @@ rule flagstat_final_bam:
         """
         samtools flagstat {input} > {output} 2> {log}
         """
+# Grep for Positive and Negative strands from Tn5 bedfile
+rule get pos_neg_strands:
+    input: tn5_bed=os.path.join(config["output_dir"], "{sample}/tags/{sample}_Tn5_slop" + str(config["slop"]) + "_blacklisted.bed.gz")
+    
+    output: tn5_bed_pos=os.path.join(config["output_dir"], "{sample}/tags/{sample}_Tn5_slop" + str(config["slop"]) + "_posStrand_blacklisted.bed.gz"),
+            tn5_bed_neg=os.path.join(config["output_dir"], "{sample}/tags/{sample}_Tn5_slop" + str(config["slop"]) + "_negStrand_blacklisted.bed.gz")
 
+    message: "Grep for Positive and Negative Strands"
+    
+    shell:
+        """
+        zcat {input.tn5_bed} | grep -w "+" | pigz > {output.tn5_bed_pos}
+        zcat {input.tn5_bed} | grep -w "-" | pigz > {output.tn5_bed_neg}
+        """
+    
+    
 # Generate bigwig coverage track of Tn5 signal scaled to the sequencing depth
 rule get_Tn5_coverage:
     input: bam=os.path.join(config["output_dir"], "{sample}/alignments/{sample}.bam"),
            bam_index=os.path.join(config["output_dir"], "{sample}/alignments/{sample}.bam.bai"),
            tn5_bed=os.path.join(config["output_dir"], "{sample}/tags/{sample}_Tn5_slop" + str(config["slop"]) + "_blacklisted.bed.gz"),
+           tn5_bed_pos=os.path.join(config["output_dir"], "{sample}/tags/{sample}_Tn5_slop" + str(config["slop"]) + "_posStrand_blacklisted.bed.gz"),
+           tn5_bed_neg=os.path.join(config["output_dir"], "{sample}/tags/{sample}_Tn5_slop" + str(config["slop"]) + "_negStrand_blacklisted.bed.gz")
 
     params: millions_factor=config["million_factor"],
             chrom_sizes=config["chrom_sizes"]
 
     output: tn5_bedgraph=temp(os.path.join(config["output_dir"], "{sample}/tags/{sample}_Tn5_slop" + str(config["slop"]) + "_blacklisted.bedraph")),
-            tn5_bigwig=os.path.join(config["output_dir"], "{sample}/tags/{sample}_Tn5_slop" + str(config["slop"]) + "_blacklisted.bw")
+            tn5_bedgraph_pos=temp(os.path.join(config["output_dir"], "{sample}/tags/{sample}_Tn5_slop" + str(config["slop"]) + "_blacklisted_posStrand.bedraph")),
+            tn5_bedgraph_neg=temp(os.path.join(config["output_dir"], "{sample}/tags/{sample}_Tn5_slop" + str(config["slop"]) + "_blacklisted_negStrand.bedraph")),
+            tn5_bigwig=os.path.join(config["output_dir"], "{sample}/tags/{sample}_Tn5_slop" + str(config["slop"]) + "_blacklisted.bw"),
+            tn5_bigwig_pos=os.path.join(config["output_dir"], "{sample}/tags/{sample}_Tn5_slop" + str(config["slop"]) + "_posStrand_blacklisted.bw"),
+            tn5_bigwig_neg=os.path.join(config["output_dir"], "{sample}/tags/{sample}_Tn5_slop" + str(config["slop"]) + "_negStrand_blacklisted.bw")
 
     log: os.path.join(config["output_dir"], "{sample}/logs/bigwig/{sample}.bigwig")
 
@@ -348,6 +372,8 @@ rule get_Tn5_coverage:
     shell:
         """
         sh ./scripts/generate_bigwig.sh {input.bam} {params.millions_factor} {input.tn5_bed} {params.chrom_sizes} {output.tn5_bedgraph} {output.tn5_bigwig}
+        sh ./scripts/generate_bigwig.sh {input.bam} {params.millions_factor} {input.tn5_bed_pos} {params.chrom_sizes} {output.tn5_bedgraph_pos} {output.tn5_bigwig_pos}
+        sh ./scripts/generate_bigwig.sh {input.bam} {params.millions_factor} {input.tn5_bed_neg} {params.chrom_sizes} {output.tn5_bedgraph_neg} {output.tn5_bigwig_neg}
         """
 
 # Call Peaks with MACS2

@@ -1,0 +1,20 @@
+Config file ./inputs/config.yaml is extended by additional config specified via the command line.
+Building DAG of jobs...
+Your conda installation is not configured to use strict channel priorities. This is however crucial for having robust and correct environments (for details, see https://conda-forge.org/docs/user/tipsandtricks.html). Please consider to configure strict priorities by executing 'conda config --set channel_priority strict'.
+Using shell: /usr/bin/bash
+Provided cores: 12
+Rules claiming more threads will be scaled down.
+Provided resources: mem_mb=64000, disk_mb=4207
+Select jobs to execute...
+
+[Tue Aug 30 00:07:22 2022]
+Job 0: Calulating FRIP
+Reason: Forced execution
+
+
+        sh ./scripts/frip.sh /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10476524/tags/SRX10476524_Tn5_slop20_blacklisted.bed.gz /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10476524/peaks/SRX10476524_ext40_q05_peaks.narrowPeak /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10476524/qc/frip/SRX10476524_ext40_q05_FRIP.txt
+        
+Activating conda environment: .snakemake/conda/77bd82eb2b9cc18125f7538d86dd358a
+[Tue Aug 30 00:12:38 2022]
+Finished job 0.
+1 of 1 steps (100%) done

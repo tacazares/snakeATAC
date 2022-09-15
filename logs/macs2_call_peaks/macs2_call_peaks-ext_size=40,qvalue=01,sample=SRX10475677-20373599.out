@@ -1,0 +1,101 @@
+Config file ./inputs/config.yaml is extended by additional config specified via the command line.
+Building DAG of jobs...
+Your conda installation is not configured to use strict channel priorities. This is however crucial for having robust and correct environments (for details, see https://conda-forge.org/docs/user/tipsandtricks.html). Please consider to configure strict priorities by executing 'conda config --set channel_priority strict'.
+Using shell: /usr/bin/bash
+Provided cores: 12
+Rules claiming more threads will be scaled down.
+Provided resources: mem_mb=64000, disk_mb=1000
+Select jobs to execute...
+
+[Mon Aug 29 16:49:37 2022]
+Job 0: call peaks /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475677/tags/SRX10475677_Tn5_slop20_blacklisted.bed.gz: 4 threads
+Reason: Forced execution
+
+
+        macs2 callpeak -t /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475677/tags/SRX10475677_Tn5_slop20_blacklisted.bed.gz --name SRX10475677_ext40_q01 -g hs --outdir /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475677/peaks --nomodel --shift -0 --extsize 40 --keep-dup=all -q 0.01 --SPMR
+        
+Activating conda environment: .snakemake/conda/0fe9a3ab3b2fffbf3123be07e9758025
+INFO  @ Mon, 29 Aug 2022 16:49:42: 
+# Command line: callpeak -t /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475677/tags/SRX10475677_Tn5_slop20_blacklisted.bed.gz --name SRX10475677_ext40_q01 -g hs --outdir /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475677/peaks --nomodel --shift -0 --extsize 40 --keep-dup=all -q 0.01 --SPMR
+# ARGUMENTS LIST:
+# name = SRX10475677_ext40_q01
+# format = AUTO
+# ChIP-seq file = ['/fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475677/tags/SRX10475677_Tn5_slop20_blacklisted.bed.gz']
+# control file = None
+# effective genome size = 2.70e+09
+# band width = 300
+# model fold = [5, 50]
+# qvalue cutoff = 1.00e-02
+# The maximum gap between significant sites is assigned as the read length/tag size.
+# The minimum length of peaks is assigned as the predicted fragment length "d".
+# Larger dataset will be scaled towards smaller dataset.
+# Range for calculating regional lambda is: 10000 bps
+# Broad region calling is off
+# Paired-End mode is off
+ 
+INFO  @ Mon, 29 Aug 2022 16:49:42: #1 read tag files... 
+INFO  @ Mon, 29 Aug 2022 16:49:42: #1 read treatment tags... 
+INFO  @ Mon, 29 Aug 2022 16:49:42: Detected format is: BED 
+INFO  @ Mon, 29 Aug 2022 16:49:42: * Input file is gzipped. 
+INFO  @ Mon, 29 Aug 2022 16:49:43:  1000000 
+INFO  @ Mon, 29 Aug 2022 16:49:44:  2000000 
+INFO  @ Mon, 29 Aug 2022 16:49:45:  3000000 
+INFO  @ Mon, 29 Aug 2022 16:49:46:  4000000 
+INFO  @ Mon, 29 Aug 2022 16:49:47:  5000000 
+INFO  @ Mon, 29 Aug 2022 16:49:48:  6000000 
+INFO  @ Mon, 29 Aug 2022 16:49:49:  7000000 
+INFO  @ Mon, 29 Aug 2022 16:49:50:  8000000 
+INFO  @ Mon, 29 Aug 2022 16:49:51:  9000000 
+INFO  @ Mon, 29 Aug 2022 16:49:52:  10000000 
+INFO  @ Mon, 29 Aug 2022 16:49:53:  11000000 
+INFO  @ Mon, 29 Aug 2022 16:49:54:  12000000 
+INFO  @ Mon, 29 Aug 2022 16:49:55:  13000000 
+INFO  @ Mon, 29 Aug 2022 16:49:56:  14000000 
+INFO  @ Mon, 29 Aug 2022 16:49:57:  15000000 
+INFO  @ Mon, 29 Aug 2022 16:49:58:  16000000 
+INFO  @ Mon, 29 Aug 2022 16:49:59:  17000000 
+INFO  @ Mon, 29 Aug 2022 16:50:00:  18000000 
+INFO  @ Mon, 29 Aug 2022 16:50:01:  19000000 
+INFO  @ Mon, 29 Aug 2022 16:50:02:  20000000 
+INFO  @ Mon, 29 Aug 2022 16:50:03:  21000000 
+INFO  @ Mon, 29 Aug 2022 16:50:04:  22000000 
+INFO  @ Mon, 29 Aug 2022 16:50:05:  23000000 
+INFO  @ Mon, 29 Aug 2022 16:50:06:  24000000 
+INFO  @ Mon, 29 Aug 2022 16:50:07:  25000000 
+INFO  @ Mon, 29 Aug 2022 16:50:08:  26000000 
+INFO  @ Mon, 29 Aug 2022 16:50:09:  27000000 
+INFO  @ Mon, 29 Aug 2022 16:50:10:  28000000 
+INFO  @ Mon, 29 Aug 2022 16:50:11:  29000000 
+INFO  @ Mon, 29 Aug 2022 16:50:12:  30000000 
+INFO  @ Mon, 29 Aug 2022 16:50:13:  31000000 
+INFO  @ Mon, 29 Aug 2022 16:50:14:  32000000 
+INFO  @ Mon, 29 Aug 2022 16:50:15:  33000000 
+INFO  @ Mon, 29 Aug 2022 16:50:15:  34000000 
+INFO  @ Mon, 29 Aug 2022 16:50:16:  35000000 
+INFO  @ Mon, 29 Aug 2022 16:50:17:  36000000 
+INFO  @ Mon, 29 Aug 2022 16:50:18:  37000000 
+INFO  @ Mon, 29 Aug 2022 16:50:19:  38000000 
+INFO  @ Mon, 29 Aug 2022 16:50:20:  39000000 
+INFO  @ Mon, 29 Aug 2022 16:50:21:  40000000 
+INFO  @ Mon, 29 Aug 2022 16:50:22:  41000000 
+INFO  @ Mon, 29 Aug 2022 16:50:23:  42000000 
+INFO  @ Mon, 29 Aug 2022 16:50:24:  43000000 
+INFO  @ Mon, 29 Aug 2022 16:50:25:  44000000 
+INFO  @ Mon, 29 Aug 2022 16:50:26:  45000000 
+INFO  @ Mon, 29 Aug 2022 16:50:27: #1 tag size is determined as 41 bps 
+INFO  @ Mon, 29 Aug 2022 16:50:27: #1 tag size = 41.0 
+INFO  @ Mon, 29 Aug 2022 16:50:27: #1  total tags in treatment: 45532543 
+INFO  @ Mon, 29 Aug 2022 16:50:27: #1 finished! 
+INFO  @ Mon, 29 Aug 2022 16:50:27: #2 Build Peak Model... 
+INFO  @ Mon, 29 Aug 2022 16:50:27: #2 Skipped... 
+INFO  @ Mon, 29 Aug 2022 16:50:27: #2 Use 40 as fragment length 
+INFO  @ Mon, 29 Aug 2022 16:50:27: #3 Call peaks... 
+INFO  @ Mon, 29 Aug 2022 16:50:27: #3 Pre-compute pvalue-qvalue table... 
+INFO  @ Mon, 29 Aug 2022 16:51:57: #3 Call peaks for each chromosome... 
+INFO  @ Mon, 29 Aug 2022 16:52:46: #4 Write output xls file... /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475677/peaks/SRX10475677_ext40_q01_peaks.xls 
+INFO  @ Mon, 29 Aug 2022 16:52:47: #4 Write peak in narrowPeak format file... /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475677/peaks/SRX10475677_ext40_q01_peaks.narrowPeak 
+INFO  @ Mon, 29 Aug 2022 16:52:47: #4 Write summits bed file... /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475677/peaks/SRX10475677_ext40_q01_summits.bed 
+INFO  @ Mon, 29 Aug 2022 16:52:47: Done! 
+[Mon Aug 29 16:52:47 2022]
+Finished job 0.
+1 of 1 steps (100%) done

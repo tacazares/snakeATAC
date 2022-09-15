@@ -1,0 +1,20 @@
+Config file ./inputs/config.yaml is extended by additional config specified via the command line.
+Building DAG of jobs...
+Your conda installation is not configured to use strict channel priorities. This is however crucial for having robust and correct environments (for details, see https://conda-forge.org/docs/user/tipsandtricks.html). Please consider to configure strict priorities by executing 'conda config --set channel_priority strict'.
+Using shell: /usr/bin/bash
+Provided cores: 12
+Rules claiming more threads will be scaled down.
+Provided resources: mem_mb=64000, disk_mb=3954
+Select jobs to execute...
+
+[Mon Aug 29 16:14:39 2022]
+Job 0: Get flagstats of final bam /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX5608487/alignments/SRX5608487.bam: 4 threads
+Reason: Forced execution
+
+
+        samtools flagstat /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX5608487/alignments/SRX5608487.bam > /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX5608487/flagstat/SRX5608487.final_bam.flagstat 2> /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX5608487/logs/flagstat/SRX5608487_final_bam.log
+        
+Activating conda environment: .snakemake/conda/154eb02199115d6193fde50310bb059a
+[Mon Aug 29 16:14:57 2022]
+Finished job 0.
+1 of 1 steps (100%) done

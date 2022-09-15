@@ -1,0 +1,22 @@
+Config file ./inputs/config.yaml is extended by additional config specified via the command line.
+Building DAG of jobs...
+Your conda installation is not configured to use strict channel priorities. This is however crucial for having robust and correct environments (for details, see https://conda-forge.org/docs/user/tipsandtricks.html). Please consider to configure strict priorities by executing 'conda config --set channel_priority strict'.
+Using shell: /usr/bin/bash
+Provided cores: 12
+Rules claiming more threads will be scaled down.
+Provided resources: mem_mb=64000, disk_mb=6987
+Select jobs to execute...
+
+[Mon Aug 29 16:48:05 2022]
+Job 0: Convert /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475677/alignments/SRX10475677.bam /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475677/alignments/SRX10475677.bam.bai /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475677/tags/SRX10475677_Tn5_slop20_blacklisted.bed.gz /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475677/tags/SRX10475677_Tn5_slop20_posStrand_blacklisted.bed.gz /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475677/tags/SRX10475677_Tn5_slop20_negStrand_blacklisted.bed.gz to bigwig: 4 threads
+Reason: Forced execution
+
+
+        sh ./scripts/generate_bigwig.sh /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475677/alignments/SRX10475677.bam 1000000 /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475677/tags/SRX10475677_Tn5_slop20_blacklisted.bed.gz /fs/project/PES0738/maxATAC_inputs/genome_inf/hg38.22XY.chrom.sizes /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475677/tags/SRX10475677_Tn5_slop20_blacklisted.bedraph /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475677/tags/SRX10475677_Tn5_slop20_blacklisted.bw
+        sh ./scripts/generate_bigwig.sh /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475677/alignments/SRX10475677.bam 1000000 /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475677/tags/SRX10475677_Tn5_slop20_posStrand_blacklisted.bed.gz /fs/project/PES0738/maxATAC_inputs/genome_inf/hg38.22XY.chrom.sizes /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475677/tags/SRX10475677_Tn5_slop20_blacklisted_posStrand.bedraph /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475677/tags/SRX10475677_Tn5_slop20_posStrand_blacklisted.bw
+        sh ./scripts/generate_bigwig.sh /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475677/alignments/SRX10475677.bam 1000000 /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475677/tags/SRX10475677_Tn5_slop20_negStrand_blacklisted.bed.gz /fs/project/PES0738/maxATAC_inputs/genome_inf/hg38.22XY.chrom.sizes /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475677/tags/SRX10475677_Tn5_slop20_blacklisted_negStrand.bedraph /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475677/tags/SRX10475677_Tn5_slop20_negStrand_blacklisted.bw
+        
+Activating conda environment: .snakemake/conda/7cf04946e1cfaf361590aa53f8c82c26
+[Mon Aug 29 17:21:46 2022]
+Finished job 0.
+1 of 1 steps (100%) done

@@ -1,0 +1,66 @@
+Config file ./inputs/config.yaml is extended by additional config specified via the command line.
+Building DAG of jobs...
+Your conda installation is not configured to use strict channel priorities. This is however crucial for having robust and correct environments (for details, see https://conda-forge.org/docs/user/tipsandtricks.html). Please consider to configure strict priorities by executing 'conda config --set channel_priority strict'.
+Using shell: /usr/bin/bash
+Provided cores: 12
+Rules claiming more threads will be scaled down.
+Provided resources: mem_mb=64000, disk_mb=5091
+Select jobs to execute...
+
+[Mon Aug 29 16:32:53 2022]
+Job 0: Calulating fragment size distribution with DeepTools
+Reason: Forced execution
+
+
+        bamPEFragmentSize -b /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475677/alignments/SRX10475677.bam -p 4 --binSize 1 --blackListFileName /fs/project/PES0738/maxATAC_inputs/genome_inf/hg38_maxatac_blacklist.bed --outRawFragmentLengths /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475677/qc/fragment_dist/SRX10475677.tsv
+        
+Activating conda environment: .snakemake/conda/65aa15a576f02291627916f795ced62d
+
+
+BAM file : /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475677/alignments/SRX10475677.bam
+Sample size: 2517
+
+Fragment lengths:
+Min.: 33.0
+1st Qu.: 181.0
+Mean: 296.6265395311879
+Median: 243.0
+3rd Qu.: 403.0
+Max.: 941.0
+Std: 175.12892231363367
+MAD: 104.0
+Len. 10%: 90.0
+Len. 20%: 164.0
+Len. 30%: 194.0
+Len. 40%: 216.4000000000001
+Len. 60%: 300.0
+Len. 70%: 373.0
+Len. 80%: 432.8000000000002
+Len. 90%: 565.0
+Len. 99%: 784.5200000000004
+
+
+Read lengths:
+Sample size: 2517
+
+Min.: 20.0
+1st Qu.: 99.0
+Mean: 94.34604688120778
+Median: 100.0
+3rd Qu.: 101.0
+Max.: 101.0
+Std: 15.110421186493816
+MAD: 1.0
+Len. 10%: 69.60000000000002
+Len. 20%: 98.0
+Len. 30%: 100.0
+Len. 40%: 100.0
+Len. 60%: 101.0
+Len. 70%: 101.0
+Len. 80%: 101.0
+Len. 90%: 101.0
+Len. 99%: 101.0
+
+[Mon Aug 29 16:33:20 2022]
+Finished job 0.
+1 of 1 steps (100%) done

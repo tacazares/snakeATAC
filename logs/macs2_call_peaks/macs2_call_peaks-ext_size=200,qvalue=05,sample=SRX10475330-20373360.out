@@ -1,0 +1,102 @@
+Config file ./inputs/config.yaml is extended by additional config specified via the command line.
+Building DAG of jobs...
+Your conda installation is not configured to use strict channel priorities. This is however crucial for having robust and correct environments (for details, see https://conda-forge.org/docs/user/tipsandtricks.html). Please consider to configure strict priorities by executing 'conda config --set channel_priority strict'.
+Using shell: /usr/bin/bash
+Provided cores: 12
+Rules claiming more threads will be scaled down.
+Provided resources: mem_mb=64000, disk_mb=1000
+Select jobs to execute...
+
+[Mon Aug 29 16:45:05 2022]
+Job 0: call peaks /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475330/tags/SRX10475330_Tn5_slop20_blacklisted.bed.gz: 4 threads
+Reason: Forced execution
+
+
+        macs2 callpeak -t /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475330/tags/SRX10475330_Tn5_slop20_blacklisted.bed.gz --name SRX10475330_ext200_q05 -g hs --outdir /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475330/peaks --nomodel --shift -80 --extsize 200 --keep-dup=all -q 0.05 --SPMR
+        
+Activating conda environment: .snakemake/conda/0fe9a3ab3b2fffbf3123be07e9758025
+INFO  @ Mon, 29 Aug 2022 16:45:10: 
+# Command line: callpeak -t /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475330/tags/SRX10475330_Tn5_slop20_blacklisted.bed.gz --name SRX10475330_ext200_q05 -g hs --outdir /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475330/peaks --nomodel --shift -80 --extsize 200 --keep-dup=all -q 0.05 --SPMR
+# ARGUMENTS LIST:
+# name = SRX10475330_ext200_q05
+# format = AUTO
+# ChIP-seq file = ['/fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475330/tags/SRX10475330_Tn5_slop20_blacklisted.bed.gz']
+# control file = None
+# effective genome size = 2.70e+09
+# band width = 300
+# model fold = [5, 50]
+# qvalue cutoff = 5.00e-02
+# The maximum gap between significant sites is assigned as the read length/tag size.
+# The minimum length of peaks is assigned as the predicted fragment length "d".
+# Larger dataset will be scaled towards smaller dataset.
+# Range for calculating regional lambda is: 10000 bps
+# Broad region calling is off
+# Paired-End mode is off
+ 
+INFO  @ Mon, 29 Aug 2022 16:45:10: #1 read tag files... 
+INFO  @ Mon, 29 Aug 2022 16:45:10: #1 read treatment tags... 
+INFO  @ Mon, 29 Aug 2022 16:45:10: Detected format is: BED 
+INFO  @ Mon, 29 Aug 2022 16:45:10: * Input file is gzipped. 
+INFO  @ Mon, 29 Aug 2022 16:45:11:  1000000 
+INFO  @ Mon, 29 Aug 2022 16:45:12:  2000000 
+INFO  @ Mon, 29 Aug 2022 16:45:13:  3000000 
+INFO  @ Mon, 29 Aug 2022 16:45:14:  4000000 
+INFO  @ Mon, 29 Aug 2022 16:45:15:  5000000 
+INFO  @ Mon, 29 Aug 2022 16:45:16:  6000000 
+INFO  @ Mon, 29 Aug 2022 16:45:17:  7000000 
+INFO  @ Mon, 29 Aug 2022 16:45:18:  8000000 
+INFO  @ Mon, 29 Aug 2022 16:45:19:  9000000 
+INFO  @ Mon, 29 Aug 2022 16:45:20:  10000000 
+INFO  @ Mon, 29 Aug 2022 16:45:21:  11000000 
+INFO  @ Mon, 29 Aug 2022 16:45:22:  12000000 
+INFO  @ Mon, 29 Aug 2022 16:45:23:  13000000 
+INFO  @ Mon, 29 Aug 2022 16:45:24:  14000000 
+INFO  @ Mon, 29 Aug 2022 16:45:25:  15000000 
+INFO  @ Mon, 29 Aug 2022 16:45:26:  16000000 
+INFO  @ Mon, 29 Aug 2022 16:45:27:  17000000 
+INFO  @ Mon, 29 Aug 2022 16:45:28:  18000000 
+INFO  @ Mon, 29 Aug 2022 16:45:29:  19000000 
+INFO  @ Mon, 29 Aug 2022 16:45:30:  20000000 
+INFO  @ Mon, 29 Aug 2022 16:45:31:  21000000 
+INFO  @ Mon, 29 Aug 2022 16:45:32:  22000000 
+INFO  @ Mon, 29 Aug 2022 16:45:33:  23000000 
+INFO  @ Mon, 29 Aug 2022 16:45:34:  24000000 
+INFO  @ Mon, 29 Aug 2022 16:45:35:  25000000 
+INFO  @ Mon, 29 Aug 2022 16:45:36:  26000000 
+INFO  @ Mon, 29 Aug 2022 16:45:37:  27000000 
+INFO  @ Mon, 29 Aug 2022 16:45:38:  28000000 
+INFO  @ Mon, 29 Aug 2022 16:45:39:  29000000 
+INFO  @ Mon, 29 Aug 2022 16:45:40:  30000000 
+INFO  @ Mon, 29 Aug 2022 16:45:41:  31000000 
+INFO  @ Mon, 29 Aug 2022 16:45:42:  32000000 
+INFO  @ Mon, 29 Aug 2022 16:45:43:  33000000 
+INFO  @ Mon, 29 Aug 2022 16:45:44:  34000000 
+INFO  @ Mon, 29 Aug 2022 16:45:45:  35000000 
+INFO  @ Mon, 29 Aug 2022 16:45:46:  36000000 
+INFO  @ Mon, 29 Aug 2022 16:45:47:  37000000 
+INFO  @ Mon, 29 Aug 2022 16:45:48:  38000000 
+INFO  @ Mon, 29 Aug 2022 16:45:49:  39000000 
+INFO  @ Mon, 29 Aug 2022 16:45:50:  40000000 
+INFO  @ Mon, 29 Aug 2022 16:45:51:  41000000 
+INFO  @ Mon, 29 Aug 2022 16:45:52:  42000000 
+INFO  @ Mon, 29 Aug 2022 16:45:53:  43000000 
+INFO  @ Mon, 29 Aug 2022 16:45:54:  44000000 
+INFO  @ Mon, 29 Aug 2022 16:45:55:  45000000 
+INFO  @ Mon, 29 Aug 2022 16:45:57: #1 tag size is determined as 41 bps 
+INFO  @ Mon, 29 Aug 2022 16:45:57: #1 tag size = 41.0 
+INFO  @ Mon, 29 Aug 2022 16:45:57: #1  total tags in treatment: 45813691 
+INFO  @ Mon, 29 Aug 2022 16:45:57: #1 finished! 
+INFO  @ Mon, 29 Aug 2022 16:45:57: #2 Build Peak Model... 
+INFO  @ Mon, 29 Aug 2022 16:45:57: #2 Skipped... 
+INFO  @ Mon, 29 Aug 2022 16:45:57: #2 Use 200 as fragment length 
+INFO  @ Mon, 29 Aug 2022 16:45:57: #2 Sequencing ends will be shifted towards 5' by 80 bp(s) 
+INFO  @ Mon, 29 Aug 2022 16:45:57: #3 Call peaks... 
+INFO  @ Mon, 29 Aug 2022 16:45:57: #3 Pre-compute pvalue-qvalue table... 
+INFO  @ Mon, 29 Aug 2022 16:47:45: #3 Call peaks for each chromosome... 
+INFO  @ Mon, 29 Aug 2022 16:48:41: #4 Write output xls file... /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475330/peaks/SRX10475330_ext200_q05_peaks.xls 
+INFO  @ Mon, 29 Aug 2022 16:48:41: #4 Write peak in narrowPeak format file... /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475330/peaks/SRX10475330_ext200_q05_peaks.narrowPeak 
+INFO  @ Mon, 29 Aug 2022 16:48:41: #4 Write summits bed file... /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475330/peaks/SRX10475330_ext200_q05_summits.bed 
+INFO  @ Mon, 29 Aug 2022 16:48:42: Done! 
+[Mon Aug 29 16:48:42 2022]
+Finished job 0.
+1 of 1 steps (100%) done

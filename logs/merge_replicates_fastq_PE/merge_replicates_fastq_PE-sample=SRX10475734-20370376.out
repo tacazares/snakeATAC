@@ -1,0 +1,19 @@
+Config file ./inputs/config.yaml is extended by additional config specified via the command line.
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 14
+Rules claiming more threads will be scaled down.
+Provided resources: mem_mb=64000, disk_mb=28890
+Select jobs to execute...
+
+[Mon Aug 29 14:06:36 2022]
+Job 0: Merging fastq files /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/fasterq_dump/SRR14104237_1.fastq.gz /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/fasterq_dump/SRR14104238_1.fastq.gz /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/fasterq_dump/SRR14104239_1.fastq.gz /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/fasterq_dump/SRR14104240_1.fastq.gz and /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/fasterq_dump/SRR14104237_2.fastq.gz /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/fasterq_dump/SRR14104238_2.fastq.gz /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/fasterq_dump/SRR14104239_2.fastq.gz /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/fasterq_dump/SRR14104240_2.fastq.gz
+Reason: Forced execution
+
+
+        cat /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/fasterq_dump/SRR14104237_1.fastq.gz /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/fasterq_dump/SRR14104238_1.fastq.gz /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/fasterq_dump/SRR14104239_1.fastq.gz /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/fasterq_dump/SRR14104240_1.fastq.gz > /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475734/merged_fastq/SRX10475734_1.fastq.gz
+        cat /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/fasterq_dump/SRR14104237_2.fastq.gz /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/fasterq_dump/SRR14104238_2.fastq.gz /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/fasterq_dump/SRR14104239_2.fastq.gz /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/fasterq_dump/SRR14104240_2.fastq.gz > /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475734/merged_fastq/SRX10475734_2.fastq.gz
+        
+[Mon Aug 29 14:06:51 2022]
+Finished job 0.
+1 of 1 steps (100%) done

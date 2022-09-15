@@ -1,0 +1,20 @@
+Config file ./inputs/config.yaml is extended by additional config specified via the command line.
+Building DAG of jobs...
+Your conda installation is not configured to use strict channel priorities. This is however crucial for having robust and correct environments (for details, see https://conda-forge.org/docs/user/tipsandtricks.html). Please consider to configure strict priorities by executing 'conda config --set channel_priority strict'.
+Using shell: /usr/bin/bash
+Provided cores: 12
+Rules claiming more threads will be scaled down.
+Provided resources: mem_mb=64000, disk_mb=1000
+Select jobs to execute...
+
+[Mon Aug 29 13:39:27 2022]
+Job 0: Downloading fastq files for R1: /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/fasterq_dump/SRR13199799_1.fastq.gz and R2: /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/fasterq_dump/SRR13199799_2.fastq.gz
+Reason: Forced execution
+
+/users/PES0808/rizvifw/.conda/envs/snakeatac/bin/python3.9 /users/PES0808/rizvifw/repo/snakeATAC/.snakemake/scripts/tmpaxh1rnb_.wrapper.py
+Activating conda environment: .snakemake/conda/d76ed321a1e67e2704792063b836addc
+(fasterq-dump --temp /tmp/slurmtmp.20370184/tmpik112m6k --threads 6  --outdir /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/fasterq_dump SRR13199799; pigz -p 6 /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/fasterq_dump/SRR13199799_1.fastq; pigz -p 6 /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/fasterq_dump/SRR13199799_2.fastq; )  > /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/logs/fasterq_dump/SRR13199799.log 2>&1
+Not cleaning up /users/PES0808/rizvifw/repo/snakeATAC/.snakemake/scripts/tmpaxh1rnb_.wrapper.py
+[Mon Aug 29 13:39:48 2022]
+Finished job 0.
+1 of 1 steps (100%) done

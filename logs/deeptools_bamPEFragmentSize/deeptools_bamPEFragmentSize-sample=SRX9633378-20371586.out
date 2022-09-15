@@ -1,0 +1,66 @@
+Config file ./inputs/config.yaml is extended by additional config specified via the command line.
+Building DAG of jobs...
+Your conda installation is not configured to use strict channel priorities. This is however crucial for having robust and correct environments (for details, see https://conda-forge.org/docs/user/tipsandtricks.html). Please consider to configure strict priorities by executing 'conda config --set channel_priority strict'.
+Using shell: /usr/bin/bash
+Provided cores: 12
+Rules claiming more threads will be scaled down.
+Provided resources: mem_mb=64000, disk_mb=1000
+Select jobs to execute...
+
+[Mon Aug 29 16:12:38 2022]
+Job 0: Calulating fragment size distribution with DeepTools
+Reason: Forced execution
+
+
+        bamPEFragmentSize -b /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX9633378/alignments/SRX9633378.bam -p 4 --binSize 1 --blackListFileName /fs/project/PES0738/maxATAC_inputs/genome_inf/hg38_maxatac_blacklist.bed --outRawFragmentLengths /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX9633378/qc/fragment_dist/SRX9633378.tsv
+        
+Activating conda environment: .snakemake/conda/65aa15a576f02291627916f795ced62d
+
+
+BAM file : /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX9633378/alignments/SRX9633378.bam
+Sample size: 1462
+
+Fragment lengths:
+Min.: 34.0
+1st Qu.: 167.5
+Mean: 277.703146374829
+Median: 226.5
+3rd Qu.: 380.75
+Max.: 1001.0
+Std: 179.11157701713216
+MAD: 105.5
+Len. 10%: 77.0
+Len. 20%: 125.0
+Len. 30%: 183.0
+Len. 40%: 207.0
+Len. 60%: 255.0
+Len. 70%: 340.39999999999986
+Len. 80%: 414.0
+Len. 90%: 554.8000000000002
+Len. 99%: 797.7800000000002
+
+
+Read lengths:
+Sample size: 1462
+
+Min.: 22.0
+1st Qu.: 32.0
+Mean: 32.51162790697674
+Median: 33.0
+3rd Qu.: 33.0
+Max.: 33.0
+Std: 0.8584106801214139
+MAD: 0.0
+Len. 10%: 32.0
+Len. 20%: 32.0
+Len. 30%: 32.0
+Len. 40%: 33.0
+Len. 60%: 33.0
+Len. 70%: 33.0
+Len. 80%: 33.0
+Len. 90%: 33.0
+Len. 99%: 33.0
+
+[Mon Aug 29 16:14:36 2022]
+Finished job 0.
+1 of 1 steps (100%) done

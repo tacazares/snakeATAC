@@ -1,0 +1,19 @@
+Config file ./inputs/config.yaml is extended by additional config specified via the command line.
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 15
+Rules claiming more threads will be scaled down.
+Provided resources: mem_mb=64000, disk_mb=1000
+Select jobs to execute...
+
+[Mon Aug 29 16:56:40 2022]
+Job 0: Grep for Positive and Negative Strands
+Reason: Forced execution
+
+
+        zcat /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX9633377/tags/SRX9633377_Tn5_slop20_blacklisted.bed.gz | grep -w "+" | pigz > /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX9633377/tags/SRX9633377_Tn5_slop20_posStrand_blacklisted.bed.gz
+        zcat /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX9633377/tags/SRX9633377_Tn5_slop20_blacklisted.bed.gz | grep -w "-" | pigz > /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX9633377/tags/SRX9633377_Tn5_slop20_negStrand_blacklisted.bed.gz
+        
+[Mon Aug 29 16:57:02 2022]
+Finished job 0.
+1 of 1 steps (100%) done

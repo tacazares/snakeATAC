@@ -1,0 +1,22 @@
+Config file ./inputs/config.yaml is extended by additional config specified via the command line.
+Building DAG of jobs...
+Your conda installation is not configured to use strict channel priorities. This is however crucial for having robust and correct environments (for details, see https://conda-forge.org/docs/user/tipsandtricks.html). Please consider to configure strict priorities by executing 'conda config --set channel_priority strict'.
+Using shell: /usr/bin/bash
+Provided cores: 12
+Rules claiming more threads will be scaled down.
+Provided resources: mem_mb=64000, disk_mb=3684
+Select jobs to execute...
+
+[Mon Aug 29 14:38:55 2022]
+Job 0: Using FastQC to read QC metrics in fastq file /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475677/trimmed_fastq/SRX10475677_2_val_2.fq.gz
+Reason: Forced execution
+
+/users/PES0808/rizvifw/.conda/envs/snakeatac/bin/python3.9 /users/PES0808/rizvifw/repo/snakeATAC/.snakemake/scripts/tmpaj9aj5r1.wrapper.py
+Activating conda environment: .snakemake/conda/bd6cd564fd1ef86e8161af5b16901e0b
+fastqc --quiet -t 4 --outdir /tmp/slurmtmp.20370571/tmpd3ene927 /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475677/trimmed_fastq/SRX10475677_2_val_2.fq.gz  > /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475677/logs/fastqc/SRX10475677_2_post_trim.log 2>&1
+mv /tmp/slurmtmp.20370571/tmpd3ene927/SRX10475677_2_val_2_fastqc.html /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475677/qc/fastqc/post_trim/SRX10475677_2.html
+mv /tmp/slurmtmp.20370571/tmpd3ene927/SRX10475677_2_val_2_fastqc.zip /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX10475677/qc/fastqc/post_trim/SRX10475677_2_fastqc.zip
+Not cleaning up /users/PES0808/rizvifw/repo/snakeATAC/.snakemake/scripts/tmpaj9aj5r1.wrapper.py
+[Mon Aug 29 14:41:51 2022]
+Finished job 0.
+1 of 1 steps (100%) done

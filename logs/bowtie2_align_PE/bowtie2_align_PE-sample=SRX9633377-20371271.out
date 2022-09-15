@@ -1,0 +1,20 @@
+Config file ./inputs/config.yaml is extended by additional config specified via the command line.
+Building DAG of jobs...
+Your conda installation is not configured to use strict channel priorities. This is however crucial for having robust and correct environments (for details, see https://conda-forge.org/docs/user/tipsandtricks.html). Please consider to configure strict priorities by executing 'conda config --set channel_priority strict'.
+Using shell: /usr/bin/bash
+Provided cores: 8
+Rules claiming more threads will be scaled down.
+Provided resources: mem_mb=64000, disk_mb=1000
+Select jobs to execute...
+
+[Mon Aug 29 15:43:22 2022]
+Job 0: Aligning reads with bowtie2 /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX9633377/trimmed_fastq/SRX9633377_1_val_1.fq.gz /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX9633377/trimmed_fastq/SRX9633377_2_val_2.fq.gz: 8 threads
+Reason: Forced execution
+
+
+        bowtie2 --very-sensitive --maxins 2000 -p 8 -x /fs/project/PES0738/maxATAC_inputs/genome_inf/hg38/bowtie2_index/hg38 -1 /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX9633377/trimmed_fastq/SRX9633377_1_val_1.fq.gz -2 /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX9633377/trimmed_fastq/SRX9633377_2_val_2.fq.gz -S /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX9633377/alignments/SRX9633377.sam 2> /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX9633377/logs/bowtie2/SRX9633377.log
+        
+Activating conda environment: .snakemake/conda/cc97fc90f1e8406499a547617b4191e4
+[Mon Aug 29 16:04:39 2022]
+Finished job 0.
+1 of 1 steps (100%) done

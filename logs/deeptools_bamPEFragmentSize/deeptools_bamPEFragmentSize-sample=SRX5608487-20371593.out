@@ -1,0 +1,66 @@
+Config file ./inputs/config.yaml is extended by additional config specified via the command line.
+Building DAG of jobs...
+Your conda installation is not configured to use strict channel priorities. This is however crucial for having robust and correct environments (for details, see https://conda-forge.org/docs/user/tipsandtricks.html). Please consider to configure strict priorities by executing 'conda config --set channel_priority strict'.
+Using shell: /usr/bin/bash
+Provided cores: 12
+Rules claiming more threads will be scaled down.
+Provided resources: mem_mb=64000, disk_mb=3954
+Select jobs to execute...
+
+[Mon Aug 29 16:14:04 2022]
+Job 0: Calulating fragment size distribution with DeepTools
+Reason: Forced execution
+
+
+        bamPEFragmentSize -b /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX5608487/alignments/SRX5608487.bam -p 4 --binSize 1 --blackListFileName /fs/project/PES0738/maxATAC_inputs/genome_inf/hg38_maxatac_blacklist.bed --outRawFragmentLengths /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX5608487/qc/fragment_dist/SRX5608487.tsv
+        
+Activating conda environment: .snakemake/conda/65aa15a576f02291627916f795ced62d
+
+
+BAM file : /fs/project/PES0738/maxATAC_outputs/20220810_snakemake_test_run/outputs/SRX5608487/alignments/SRX5608487.bam
+Sample size: 1492
+
+Fragment lengths:
+Min.: 30.0
+1st Qu.: 93.75
+Mean: 198.64477211796248
+Median: 186.0
+3rd Qu.: 265.5
+Max.: 656.0
+Std: 120.14265350477285
+MAD: 89.0
+Len. 10%: 67.0
+Len. 20%: 82.0
+Len. 30%: 105.0
+Len. 40%: 140.0
+Len. 60%: 213.0
+Len. 70%: 242.0
+Len. 80%: 292.0
+Len. 90%: 384.8000000000002
+Len. 99%: 508.4499999999996
+
+
+Read lengths:
+Sample size: 1492
+
+Min.: 20.0
+1st Qu.: 41.0
+Mean: 41.47721179624665
+Median: 42.0
+3rd Qu.: 42.0
+Max.: 42.0
+Std: 1.1326927041845285
+MAD: 0.0
+Len. 10%: 41.0
+Len. 20%: 41.0
+Len. 30%: 41.0
+Len. 40%: 42.0
+Len. 60%: 42.0
+Len. 70%: 42.0
+Len. 80%: 42.0
+Len. 90%: 42.0
+Len. 99%: 42.0
+
+[Mon Aug 29 16:14:19 2022]
+Finished job 0.
+1 of 1 steps (100%) done
