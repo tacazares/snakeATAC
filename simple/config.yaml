@@ -4,7 +4,7 @@ cluster:
     --cpus-per-task={threads}
     --mem={resources.mem_mb}
     --job-name=smk-{rule}-{wildcards}
-    --account={YOUR_ACCOUNT}
+    --account=PES0738
     --output=logs/{rule}/{rule}-{wildcards}-%j.out
     --time={resources.time}
     --parsable
