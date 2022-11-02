@@ -1,0 +1,115 @@
+"""
+This document contains rules that are used for running TOBIAS. Many of the rules were copied form the 
+TOBIAS snakemake workflow.
+"""
+
+rule TOBIAS_STAR_align_PE:
+    input:
+        os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/trimmed_fastq/{sample}_1_val_1.fq.gz"), 
+        os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/trimmed_fastq/{sample}_2_val_2.fq.gz")
+
+    output: temp(os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/alignments/star/{sample}.bam"))
+
+    threads: 16
+
+    params: prefix = "{sample}_"
+
+    message: "Aligning reads with STAR using TOBIAS parameters {input}: {threads} threads"
+
+    conda: "../envs/star.yaml"
+
+    benchmark: os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/logs/benchmark/{sample}.TOBIAS_STAR_align_PE.txt")
+
+    log: os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/logs/rule_logs/{sample}.TOBIAS_STAR_align_PE.txt")
+
+    shell:
+        """
+        # Select Parameter Description
+
+        # runThreadN: Number of threads to use
+        # readFilesIn: Fastq files
+        # outFileNamePrefix: Prefix of the outputDIR and the name to use
+        # outSAMtype: Output the file as a BAM file that is sorted
+        # outSAMunmapped: Output unmapped reads in the SAM file with special flag
+        # outSAMattributes: Standard SAM attributes
+        # alignIntronMax: Allow only 1 max intron. This is specific to ATAC-seq
+        # STAR was designed for RNA transcripts so we want to ignore some parameters
+        # alignMatesGapMax: Allow a maximum of 2000 bp gap.
+        # alignEndsType: This aligns the full read and considers the whole read in score calculation.
+        # outMultimapperOrder: Output multimapped reads in random order
+        # outFilterMultimapNmax: Max 1000 multimapped reads
+        # outSAMmultNmax: 1
+        # outFilterMismatchNoverLmax: .1 mismatch
+        # outFilterMatchNmin: 20
+        # alignSJDBoverhangMin: 999
+        # alignEndsProtrude: 10 ConcordantPair 
+        # outFilterScoreMinOverLread: 0.66
+        # outFilterMatchNminOverLread: 0.66
+        # readFilesCommand: zcat
+
+        echo "Align Files with STAR: In Progress"
+
+        STAR --genomeDir {params.STAR_INDEX} \
+        --runThreadN {params.THREADS} \
+        --readFilesIn {input[0]} {input[1]} \
+        --outFileNamePrefix {params.Prefix} \
+        --outSAMtype BAM SortedByCoordinate \
+        --outSAMattributes Standard \
+        --alignIntronMax 1 \
+        --alignMatesGapMax 2000 \
+        --alignEndsType EndToEnd \
+        --outMultimapperOrder Random \
+        --outFilterMultimapNmax 999 \
+        --outSAMmultNmax 1 \
+        --outFilterMismatchNoverLmax 0.1 \
+        --outFilterMatchNmin 20 \
+        --alignSJDBoverhangMin 999 \
+        --alignEndsProtrude 10 ConcordantPair  \
+        --outFilterScoreMinOverLread 0.66 \
+        --outFilterMatchNminOverLread 0.66 \
+        --readFilesCommand zcat
+        """
+
+rule merge_condition_bams:
+    input: meta.getConditionReps
+
+    output: os.path.join(config["output_dir"], "{condition}/TOBIAS/merged_bam/{condition}.bam")
+
+    conda: "./envs/samtools.yaml"
+    
+    message: "Merging replicate BAM files from the same condition. \n Inputs: {input} \n Output: {params.name} \n Threads: {threads}"
+    
+    threads: 4
+
+    shell:
+    """
+    samtools merge -@ {threads} {output} {input}
+
+    samtools index -@ 4 {output}
+    """
+
+rule macs2_call_peaks_tobias:
+    input: os.path.join(config["output_dir"], "{condition}/alignments/TOBIAS/merged_bam/{sample}.bam")
+
+    output: os.path.join(config["output_dir"], "{sample}/TOBIAS/peaks/{condition}_TOBIAS_input")
+
+    log:    os.path.join(config["output_dir"], "{condition}/logs/macs2/{condition}_TOBIAS_input")
+
+    params: PEAK_DIR = os.path.join(config["output_dir"], "{condition}/TOBIAS/peaks"),
+            NAME = "{condition}_TOBIAS_input",
+            species = config["species"],
+
+    threads: 4
+
+    conda: "./envs/macs2.yaml"
+
+    message: "call peaks {input}: {threads} threads"
+
+    shell:
+        """
+        macs2 callpeak -t {input} --name {params.NAME} -g {params.species} --outdir {params.PEAK_DIR} --nomodel --shift -100 --extsize 200 --broad
+        """
+
+rule ATACorrect:
+    shell:
+        "TOBIAS ATACorrect --bam ${file} --genome Homo_sapiens.GRCh38.fa --peaks ${peaks} --blacklist hg38_maxatac_blacklist_V2.bed --outdir /TOBIAS/${base_filename} --cores 4"

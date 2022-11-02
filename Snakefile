@@ -1,438 +1,95 @@
-import pandas as pd
-import os
+"""
+~~~~~~~~~~ snakeATAC ~~~~~~~~~~~
+Description:
+A snakemake workflow for processing ATAC-seq data. This workflow was
+developed using code from TOBIAS, HINT-ATAC, maxATAC, and many more.
 
+See detailed introduction: https://github.com/tacazares/snakeATAC
+
+Inputs:
+config.yaml: run parameters
+sample.tsv: experimental meta data wil columns (condition, srx, srr)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Environment Setup
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+import os
+from scripts.meta import MetaTable
+
+# Default path to sample config file. This can be overwritten by the snakemake CLI
 configfile: "./inputs/config.yaml"
 
-# This script was adapted from https://github.com/tacazares/pyflow-ATACseq
-# localrules will let the rule run locally rather than submitting to cluster
-# computing nodes, this is for very small jobs
-localrules: all
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Load Meta
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-class MetaTable(object):
-    def __init__(self,
-                 meta_path,
-                 output_dir):
-        self.df = pd.read_table(meta_path)
-
-        self.output_dir = output_dir
-
-        self.all_tech_reps = self.df["srr"].unique().tolist()
-
-        self.sample_list = self.df["srx"].unique().tolist()
-
-    def getReplicateFastq_pe1(self, wildcards):
-        TECH_REP_LIST = self.df[self.df["srx"] == wildcards.sample]["srr"]
-        
-        return list(map(lambda tech_rep_id: os.path.join(self.output_dir, "fasterq_dump", tech_rep_id + "_1.fastq.gz"), TECH_REP_LIST))
-
-    def getReplicateFastq_pe2(self, wildcards):
-        TECH_REP_LIST = self.df[self.df["srx"] == wildcards.sample]["srr"]
-        
-        return list(map(lambda tech_rep_id: os.path.join(self.output_dir, "fasterq_dump", tech_rep_id + "_2.fastq.gz"), TECH_REP_LIST))
-    
+# Initialize the meta table. This will be used later to help build filenames
 meta = MetaTable(meta_path=config["SAMPLES_TSV"], output_dir=config["output_dir"])
 
-# Expand the names out per sample
-## Build the merged FASTQ file names
-MERGED_FASTQ = expand(config["output_dir"] + "/{sample}/merged_fastq/{sample}_{read}.fastq.gz", sample = meta.sample_list, read = [1,2])
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Build Output Filenames
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# Build all fastqc names for pre and post trimmed files
-ALL_FASTQC  = expand(os.path.join(config["output_dir"], "{sample}/qc/fastqc/{types}/{sample}_{read}_fastqc.zip"), sample = meta.sample_list, read = ["1", "2"], types=["pre_trim", "post_trim"])
+outputs = []
 
-## Build the trimming FASTQ file names
-ALL_TRIMMED_FASTQ = expand(os.path.join(config["output_dir"], "{sample}/trimmed_fastq/{sample}_{read}_val_{read}.fq.gz"), sample = meta.sample_list, read = ["1", "2"])
+ALL_TRIMMED_FASTQ = expand(os.path.join(config["output_dir"], "{condition}", "replicate_data/{sample}/trimmed_fastq/{sample}_{read}_val_{read}.fq.gz"), zip, condition = meta.name_df.condition, sample = meta.name_df.srx, read = meta.name_df.read)
+
+outputs.append(ALL_TRIMMED_FASTQ)
+
+# If the fastqc argument is true generate the files. This will currently perform pre and post trimming QC. 
+if config["flags"]["fastqc"]:
+    # Build all fastqc names for pre and post trimmed files
+    ALL_PRE_TRIM_FASTQC  = expand(os.path.join(config["output_dir"], "{condition}", "replicate_data/{sample}/qc/fastqc/pre_trim/{sample}_{read}_fastqc.zip"), zip, condition = meta.name_df.condition, sample = meta.name_df.srx, read = meta.name_df.read)
+    outputs.append(ALL_PRE_TRIM_FASTQC)
+
+    ALL_POST_TRIM_FASTQC  = expand(os.path.join(config["output_dir"], "{condition}", "replicate_data/{sample}/qc/fastqc/post_trim/{sample}_{read}_fastqc.zip"), zip, condition = meta.name_df.condition, sample = meta.name_df.srx, read = meta.name_df.read)
+    outputs.append(ALL_POST_TRIM_FASTQC)
 
 ## Build BAM, BIGWIG, and peak names
-ALL_BAM = expand(os.path.join(config["output_dir"], "{sample}/alignments/{sample}.bam"), sample = meta.sample_list)
-ALL_BIGWIG = expand(os.path.join(config["output_dir"], "{sample}/tags/{sample}_Tn5_slop" + str(config["slop"]) + "_blacklisted.bw"), sample= meta.sample_list)
-ALL_PEAKS = expand(os.path.join(config["output_dir"], "{sample}/peaks/{sample}_ext{ext_size}_q{qvalue}_peaks.narrowPeak"), sample=meta.sample_list, ext_size = ["200", "40"], qvalue=["05", "01"])
+if config["flags"]["maxatac"]:
+    #ALL_SAM = expand(os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/alignments/bowtie2/{sample}.sam"), zip, condition = meta.name_df.condition, sample = meta.name_df.srx)
+    #ALL_SORTED_BAM = expand(os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/alignments/bowtie2/{sample}.namesorted.bam"), zip, condition = meta.name_df.condition, sample = meta.name_df.srx)
+    ALL_BAM = expand(os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/alignments/bowtie2/{sample}.bam"), zip, condition = meta.name_df.condition, sample = meta.name_df.srx)
+    #ALL_CUT_SITES = expand(os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/cut_sites/{sample}_Tn5_slop" + str(config["slop"]) + "_blacklisted.bed.gz"), zip, condition = meta.name_df.condition, sample = meta.name_df.srx)
+    ALL_BIGWIG = expand(os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/rpm_signal/{sample}_Tn5_slop" + str(config["slop"]) + "_blacklisted.bw"), zip, condition = meta.name_df.condition, sample = meta.name_df.srx)
+    ALL_MAXATAC_PEAKS = expand(os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/peaks/maxatac/{sample}_ext40_q05_peaks.narrowPeak"), zip, condition = meta.name_df.condition, sample = meta.name_df.srx)
+    ALL_SAM_FLAGSTAT = expand(os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/qc/maxatac/flagstat/{sample}.sam.txt"), zip, condition = meta.name_df.condition, sample = meta.name_df.srx)
+    ALL_BAM_FLAGSTAT = expand(os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/qc/maxatac/flagstat/{sample}.final_bam.txt"), zip, condition = meta.name_df.condition, sample = meta.name_df.srx)
 
-# Get QC metrics
-ALL_FRIPS = expand(os.path.join(config["output_dir"], "{sample}/qc/frip/{sample}_ext{ext_size}_q{qvalue}_FRIP.txt"), sample=meta.sample_list, ext_size = ["200", "40"], qvalue=["05", "01"])
-ALL_FRAG_DIST = expand(os.path.join(config["output_dir"], "{sample}/qc/fragment_dist/{sample}.tsv"), sample=meta.sample_list)
-ALL_CHROM_READ_COUNTS = expand(os.path.join(config["output_dir"], "{sample}/qc/chrom_counts/{sample}_chrom_read_counts.txt"), sample=meta.sample_list)
-ALL_FLAGSTAT = expand(os.path.join(config["output_dir"], "{sample}/flagstat/{sample}.{type}.flagstat"), sample = meta.sample_list, type= ["sam", "final_bam"])
+    ALL_FRIPS = expand(os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/qc/maxatac/frip/{sample}_ext40_q05_FRIP.txt"), zip, condition = meta.name_df.condition, sample = meta.name_df.srx)
+    ALL_FRAG_DIST = expand(os.path.join(config["output_dir"], "{sample}/qc/maxatac/fragment_dist/{sample}.tsv"), zip, condition = meta.name_df.condition, sample = meta.name_df.srx)
+    ALL_CHROM_READ_COUNTS = expand(os.path.join(config["output_dir"], "{sample}/qc/maxatac/chrom_counts/{sample}_chrom_read_counts.txt"), zip, condition = meta.name_df.condition, sample = meta.name_df.srx)
+
+    outputs.append(ALL_BAM + ALL_BIGWIG + ALL_MAXATAC_PEAKS + ALL_SAM_FLAGSTAT + ALL_BAM_FLAGSTAT + ALL_FRIPS + ALL_FRAG_DIST + ALL_CHROM_READ_COUNTS)
+
+# Run ATAC-seq qc
+if config["flags"]["atacseqqc"]:
+    ALL_ATACSEQQC = expand(os.path.join(config["output_dir"], "{sample}/logs/ATACseqQC/atacseqqc.txt"), sample=ALL_SAMPLES)
+    outputs.append(ALL_ATACSEQQC)
+
+# Generate stranded signal outputs
+if config["flags"]["stranded"]:
+    ALL_STRAND = expand(os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/cut_sites/{sample}_Tn5_slop" + str(config["slop"]) + "_{strand}Strand_blacklisted.bed.gz"), sample=meta.sample_list, strand = ["pos", "neg"])
+    outputs.append(ALL_STRAND)
 
 shift_dict = {"40": "0", "200": "80"}
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Import functions
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+include: os.path.join("./snakefiles", "process_fastq.sf")
+include: os.path.join("./snakefiles", "maxatac.sf")
+include: os.path.join("./snakefiles", "tobias.sf")
+#include: os.path.join("./snakefiles", "replicate_analysis.sf")
+#include: os.path.join("./snakefiles", "atacseqqc.sf")
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Start Run
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 rule all:
-    input:  ALL_BIGWIG  + ALL_FLAGSTAT + ALL_FASTQC + ALL_PEAKS + ALL_FRIPS + ALL_FRAG_DIST + ALL_CHROM_READ_COUNTS
-
-rule get_fastq_pe_gz:
-    priority: 1
-    output:
-        # the wildcard name must be accession, pointing to an srr ID
-        os.path.join(config["output_dir"], "fasterq_dump/{accession}_1.fastq.gz"),
-        os.path.join(config["output_dir"], "fasterq_dump/{accession}_2.fastq.gz"),
-    log:
-        os.path.join(config["output_dir"], "logs/fasterq_dump/{accession}.log")
-    threads: 6  # defaults to 6
-    message: "Downloading fastq files for R1: {output[0]} and R2: {output[1]}"
-    wrapper:
-        "0.77.0/bio/sra-tools/fasterq-dump"
-
-rule merge_replicates_fastq_PE:
-    input: 
-        R1 = meta.getReplicateFastq_pe1,
-        R2 = meta.getReplicateFastq_pe2
-
-    output:
-        R1_OUT = temp(os.path.join(config["output_dir"], "{sample}/merged_fastq/{sample}_1.fastq.gz")),
-        R2_OUT = temp(os.path.join(config["output_dir"], "{sample}/merged_fastq/{sample}_2.fastq.gz"))
-
-    threads: 2
-    message: "Merging fastq files {input.R1} and {input.R2}"
-    shell:
-        """
-        cat {input.R1} > {output.R1_OUT}
-        cat {input.R2} > {output.R2_OUT}
-        """
-
-# Use fastqc to get pre-trim stats on fastq
-rule fastqc_pre_trim:
-    input: os.path.join(config["output_dir"], "{sample}/merged_fastq/{sample}_{read}.fastq.gz")
-
-    output:
-        html=os.path.join(config["output_dir"], "{sample}/qc/fastqc/pre_trim/{sample}_{read}.html"),
-        zip=os.path.join(config["output_dir"], "{sample}/qc/fastqc/pre_trim/{sample}_{read}_fastqc.zip") # the suffix _fastqc.zip is necessary for multiqc to find the file. If not using multiqc, you are free to choose an arbitrary filename
-
-    params: "--quiet"
-    message: "Using FastQC to read QC metrics in fastq file {input}"
-
-    log:
-        os.path.join(config["output_dir"], "{sample}/logs/fastqc/{sample}_{read}_pre_trim.log")
-
-    threads: 4
-
-    wrapper:
-        "0.77.0/bio/fastqc"
-
-# Trim the fastq reads 
-rule trim_galore_pe:
-    input:  
-        fq1=os.path.join(config["output_dir"], "{sample}/merged_fastq/{sample}_1.fastq.gz"),
-        fq2=os.path.join(config["output_dir"], "{sample}/merged_fastq/{sample}_2.fastq.gz")
-
-    output:
-        os.path.join(config["output_dir"], "{sample}/trimmed_fastq/{sample}_1_val_1.fq.gz"),
-        os.path.join(config["output_dir"], "{sample}/trimmed_fastq/{sample}_2_val_2.fq.gz")
-
-    threads: 16
-
-    params: TRIM_DIR = os.path.join(config["output_dir"], "{sample}/trimmed_fastq")
-
-    message: "Trimming adaptors for {input} using trim_galore"
-
-    log: os.path.join(config["output_dir"], "{sample}/logs/trimmed_fastq/{sample}.log")
-
-    conda: "./envs/trim_galore.yaml"
-
-    benchmark: os.path.join(config["output_dir"], "{sample}/logs/benchmark/{sample}_trim_adapter.benchmark")
-
-    shell:
-        """
-        trim_galore -q 30 -paired -j 4 -o {params.TRIM_DIR} {input.fq1} {input.fq2} 2> {log}
-        """
-
-# Get reads statistics post adapter trimming
-rule fastqc_post_trim:
-    input: os.path.join(config["output_dir"], "{sample}/trimmed_fastq/{sample}_{read}_val_{read}.fq.gz")
-
-    output:
-        html=os.path.join(config["output_dir"], "{sample}/qc/fastqc/post_trim/{sample}_{read}.html"),
-        zip=os.path.join(config["output_dir"], "{sample}/qc/fastqc/post_trim/{sample}_{read}_fastqc.zip") # the suffix _fastqc.zip is necessary for multiqc to find the file. If not using multiqc, you are free to choose an arbitrary filename
-
-    params: "--quiet"
-    message: "Using FastQC to read QC metrics in fastq file {input}"
-
-    log:
-        os.path.join(config["output_dir"], "{sample}/logs/fastqc/{sample}_{read}_post_trim.log")
-
-    threads: 4
-
-    wrapper:
-        "0.77.0/bio/fastqc"
-
-# Align reads with bowtie2
-rule bowtie2_align_PE:
-    input:
-        os.path.join(config["output_dir"], "{sample}/trimmed_fastq/{sample}_1_val_1.fq.gz"), 
-        os.path.join(config["output_dir"], "{sample}/trimmed_fastq/{sample}_2_val_2.fq.gz")
-
-    output: temp(os.path.join(config["output_dir"], "{sample}/alignments/{sample}.sam"))
-
-    threads: 8
-
-    params: bowtie = "--very-sensitive --maxins 2000"
-
-    message: "Aligning reads with bowtie2 {input}: {threads} threads"
-
-    conda: "./envs/bowtie2.yaml"
-
-    benchmark: os.path.join(config["output_dir"], "{sample}/logs/benchmark/{sample}_bowtie2.benchmark")
-
-    log: os.path.join(config["output_dir"], "{sample}/logs/bowtie2/{sample}.log")
-
-    shell:
-        """
-        bowtie2 {params.bowtie} -p {threads} -x {config[idx_bt2]} -1 {input[0]} -2 {input[1]} -S {output} 2> {log}
-        """
-
-# Remove low quality alignments from the file
-rule quality_filter_namesort_sam2bam_pe:
-    input:  os.path.join(config["output_dir"], "{sample}/alignments/{sample}.sam")
-
-    output: temp(os.path.join(config["output_dir"], "{sample}/alignments/{sample}.namesorted.bam"))
-
-    log:    os.path.join(config["output_dir"], "{sample}/logs/filter_namesort/{sample}.namesorted_bam")
-
-    conda: "./envs/samtools.yaml"
-
-    threads: 8
-
-    benchmark: os.path.join(config["output_dir"], "{sample}/logs/benchmark/{sample}_filter_namesort.benchmark")
-
-    message: "Quality filtering and name sorting BAM {input}: {threads} threads"
-
-    shell:
-        """
-        samtools view -@ {threads} -b -u -q 30 {input} | \
-        samtools sort -@ {threads} -n -o {output} -
-        """
-
-# Namesort bam and remove PCR duplicates
-rule fixmates_pre_dedup:
-    input: os.path.join(config["output_dir"], "{sample}/alignments/{sample}.namesorted.bam")
-
-    output: fixmate_bam=temp(os.path.join(config["output_dir"], "{sample}/alignments/{sample}.fixmate.bam")),
-            fixmate_bai=temp(os.path.join(config["output_dir"], "{sample}/alignments/{sample}.fixmate.bam.bai"))
-
-    log:    os.path.join(config["output_dir"], "{sample}/logs/deduplicate/{sample}.fixmate_bam")
-
-    threads: 8
-
-    conda: "./envs/samtools.yaml"
-
-    message: "Fixmates pre PCR deduplication from {input}: {threads} threads"
-
-    shell:
-        """
-        # Add mate information to reads for deduplication
-        samtools fixmate -@ {threads} -r -m {input} - 2> {log} | \
-        samtools sort -@ {threads} -o {output.fixmate_bam} - 2> {log}
-        
-        samtools index -@ {threads} {output.fixmate_bam} 2> {log}
-
-        """
-
-# Remove PCR duplicates from BAM
-rule remove_PCR_duplicates:
-    input: os.path.join(config["output_dir"], "{sample}/alignments/{sample}.fixmate.bam")
-
-    output: dedup_bam=temp(os.path.join(config["output_dir"], "{sample}/alignments/{sample}.deduplicated.bam")),
-            dedup_bai=temp(os.path.join(config["output_dir"], "{sample}/alignments/{sample}.deduplicated.bam.bai")),
-            final_bam=os.path.join(config["output_dir"], "{sample}/alignments/{sample}.bam"),
-            final_bai=os.path.join(config["output_dir"], "{sample}/alignments/{sample}.bam.bai")
-
-    params: config["keepChr"]
-
-    log:    os.path.join(config["output_dir"], "{sample}/logs/deduplicate/{sample}.deduplicate_bam")
-
-    threads: 8
-
-    conda: "./envs/samtools.yaml"
-
-    message: "Removing PCR duplicates and unwanted chromosomes from {input}: {threads} threads"
-
-    shell:
-        """
-        # use markdup to remove PCR duplicates
-        samtools markdup -@ {threads} -r -s {input} - 2> {log} | \
-        samtools sort -@ {threads} -o {output.dedup_bam} - 2> {log}
-
-        samtools index -@ {threads} {output.dedup_bam} 2> {log}
-        
-        # remove unmapped reads with -F 4
-        samtools view -@ {threads} -b -f 3 -F 4 {output.dedup_bam} {params} | \
-        samtools sort -@ {threads} -o {output.final_bam} - 2> {log}
-        
-        samtools index -@ {threads} {output.final_bam} 2> {log}
-
-        """
-
-# Convert alignments to bed file and bedpe file
-rule generate_Tn5_sites_bed:
-    input: os.path.join(config["output_dir"], "{sample}/alignments/{sample}.bam")
-
-    output: os.path.join(config["output_dir"], "{sample}/tags/{sample}_Tn5_slop" + str(config["slop"]) + "_blacklisted.bed.gz")
-
-    log:    os.path.join(config["output_dir"], "{sample}/logs/bamtobed/{sample}.tagalign")
-
-    threads: 4
-
-    params: chrom_sizes=config["chrom_sizes"],
-            slop=config["slop"],
-            blacklist=config["blacklist"]
-
-    conda: "./envs/genome_tools.yaml"
-
-    message: "Generate Tn5 sites for {input}: {threads} threads"
-
-    shell:
-        """        
-        sh ./scripts/shift_reads.sh {input} {params.chrom_sizes} {params.slop} {params.blacklist} {output}
-        """
-
-# check number of reads mapped by samtools flagstat
-rule flagstat_sam:
-    input:  os.path.join(config["output_dir"], "{sample}/alignments/{sample}.sam")
-
-    output: os.path.join(config["output_dir"], "{sample}/flagstat/{sample}.sam.flagstat")
-
-    log:    os.path.join(config["output_dir"], "{sample}/logs/flagstat/{sample}_sorted.log")
-
-    threads: 4
-
-    params: jobname = "{sample}"
-
-    conda: "./envs/samtools.yaml"
-
-    message: "Get flagstats of sam {input}: {threads} threads"
-
-    shell:
-        """
-        samtools flagstat {input} > {output} 2> {log}
-        """
-
-# check number of reads mapped by samtools flagstat
-rule flagstat_final_bam:
-    input:  os.path.join(config["output_dir"], "{sample}/alignments/{sample}.bam")
-
-    output: os.path.join(config["output_dir"], "{sample}/flagstat/{sample}.final_bam.flagstat")
-
-    log:    os.path.join(config["output_dir"], "{sample}/logs/flagstat/{sample}_final_bam.log")
-
-    threads: 4
-
-    params: jobname = "{sample}"
-
-    conda: "./envs/samtools.yaml"
-
-    message: "Get flagstats of final bam {input}: {threads} threads"
-
-    shell:
-        """
-        samtools flagstat {input} > {output} 2> {log}
-        """
-
-# Generate bigwig coverage track of Tn5 signal scaled to the sequencing depth
-rule get_Tn5_coverage:
-    input: bam=os.path.join(config["output_dir"], "{sample}/alignments/{sample}.bam"),
-           bam_index=os.path.join(config["output_dir"], "{sample}/alignments/{sample}.bam.bai"),
-           tn5_bed=os.path.join(config["output_dir"], "{sample}/tags/{sample}_Tn5_slop" + str(config["slop"]) + "_blacklisted.bed.gz"),
-
-    params: millions_factor=config["million_factor"],
-            chrom_sizes=config["chrom_sizes"]
-
-    output: tn5_bedgraph=temp(os.path.join(config["output_dir"], "{sample}/tags/{sample}_Tn5_slop" + str(config["slop"]) + "_blacklisted.bedraph")),
-            tn5_bigwig=os.path.join(config["output_dir"], "{sample}/tags/{sample}_Tn5_slop" + str(config["slop"]) + "_blacklisted.bw")
-
-    log: os.path.join(config["output_dir"], "{sample}/logs/bigwig/{sample}.bigwig")
-
-    threads: 4
-
-    conda: "./envs/genome_tools.yaml"
-
-    message: "Convert {input} to bigwig: {threads} threads"
-
-    shell:
-        """
-        sh ./scripts/generate_bigwig.sh {input.bam} {params.millions_factor} {input.tn5_bed} {params.chrom_sizes} {output.tn5_bedgraph} {output.tn5_bigwig}
-        """
-
-# Call Peaks with MACS2
-rule macs2_call_peaks:
-    input: os.path.join(config["output_dir"], "{sample}/tags/{sample}_Tn5_slop" + str(config["slop"]) + "_blacklisted.bed.gz")
-
-    output: os.path.join(config["output_dir"], "{sample}/peaks/{sample}_ext{ext_size}_q{qvalue}_peaks.narrowPeak")
-
-    log:    os.path.join(config["output_dir"], "{sample}/logs/macs2/{sample}_ext{ext_size}_q{qvalue}.macs2")
-
-    params: PEAK_DIR = os.path.join(config["output_dir"], "{sample}/peaks"),
-            NAME = "{sample}_ext{ext_size}_q{qvalue}",
-            shift_size = lambda wildcards: shift_dict[wildcards.ext_size],
-            species = config["species"],
-            ext_size = "{ext_size}",
-            qvalue = "{qvalue}"
-
-    threads: 4
-
-    conda: "./envs/macs2.yaml"
-
-    message: "call peaks {input}: {threads} threads"
-
-    shell:
-        """
-        macs2 callpeak -t {input} --name {params.NAME} -g {params.species} --outdir {params.PEAK_DIR} --nomodel --shift -{params.shift_size} --extsize {params.ext_size} --keep-dup=all -q 0.{params.qvalue} --SPMR
-        """
-
-# Calculate the fraction of mapped reads that contribute to peaks
-rule calculate_frip:
-    input: 
-           os.path.join(config["output_dir"], "{sample}/tags/{sample}_Tn5_slop" + str(config["slop"]) + "_blacklisted.bed.gz"),
-           os.path.join(config["output_dir"], "{sample}/peaks/{sample}_ext{ext_size}_q{qvalue}_peaks.narrowPeak")
-
-    output: os.path.join(config["output_dir"], "{sample}/qc/frip/{sample}_ext{ext_size}_q{qvalue}_FRIP.txt")
-
-    log:    os.path.join(config["output_dir"], "{sample}/logs/frip/{sample}_ext{ext_size}_q{qvalue}.frip")
-
-    threads: 4
-
-    message: "Calulating FRIP"
-
-    conda: "./envs/bedtools.yaml"
-
-    shell:
-        """
-        sh ./scripts/frip.sh {input[0]} {input[1]} {output}
-        """
-
-# Get the fragment size distribution
-rule deeptools_bamPEFragmentSize:
-    input: os.path.join(config["output_dir"], "{sample}/alignments/{sample}.bam")
-    
-    output: os.path.join(config["output_dir"], "{sample}/qc/fragment_dist/{sample}.tsv")
-    message: "Calulating fragment size distribution with DeepTools"
-  
-    params:
-        bin_size = 1,
-        blacklist = config["blacklist"]
-        
-    threads: 4
-    
-    conda: "./envs/deeptools.yaml"
-
-    log: os.path.join(config["output_dir"], "{sample}/logs/frip/{sample}.frip")
-        
-    shell:
-        """
-        bamPEFragmentSize -b {input} -p {threads} --binSize {params.bin_size} --blackListFileName {params.blacklist} --outRawFragmentLengths {output}
-        """
-
-# Get the counts per chromosome
-rule get_chrom_read_counts:
-    input: os.path.join(config["output_dir"], "{sample}/alignments/{sample}.fixmate.bam")
-
-    output: os.path.join(config["output_dir"], "{sample}/qc/chrom_counts/{sample}_chrom_read_counts.txt")
-    message: "Counting reads per chromosome."
-    
-    threads: 4
-
-    conda: "./envs/samtools.yaml"
-    
-    log: os.path.join(config["output_dir"], "{sample}/logs/chrom_counts/{sample}.txt")
-
-    shell:
-        """
-        samtools idxstats {input} | cut -f 1,3 > {output}
-        """
+    input:  outputs

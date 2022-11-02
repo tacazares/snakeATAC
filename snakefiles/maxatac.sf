@@ -1,0 +1,361 @@
+"""
+This document has rules associated with mapping reads to the genome, quality control alignments, and filter alignements.
+"""
+
+# Align reads with bowtie2
+rule bowtie2_align_PE:
+    input:
+        os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/trimmed_fastq/{sample}_1_val_1.fq.gz"), 
+        os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/trimmed_fastq/{sample}_2_val_2.fq.gz")
+
+    output: temp(os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/alignments/bowtie2/{sample}.sam"))
+
+    message: "Aligning reads with bowtie2: {input}"
+
+    log: os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/logs/rule_logs/{sample}.bowtie2_align_PE.txt")
+
+    benchmark: os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/logs/benchmark/{sample}.bowtie2_align_PE.txt")
+
+    threads: 8
+
+    conda: "../envs/bowtie2.yaml"
+
+    params: bowtie = "--very-sensitive --maxins 2000"
+
+    shell:
+        """
+        bowtie2 {params.bowtie} -p {threads} -x {config[idx_bt2]} -1 {input[0]} -2 {input[1]} -S {output} 2> {log}
+        """
+
+# Remove low quality alignments from the file
+rule quality_filter_namesort_sam2bam_pe:
+    input:  os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/alignments/bowtie2/{sample}.sam")
+
+    output: temp(os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/alignments/bowtie2/{sample}.namesorted.bam"))
+
+    message: "Quality filtering and name sorting BAM {input}: {threads} threads"
+
+    log:    os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/logs/rule_logs/{sample}.quality_filter_namesort_sam2bam_pe.txt")
+
+    benchmark: os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/logs/benchmark/{sample}.quality_filter_namesort_sam2bam_pe.txt")
+
+    threads: 8
+
+    conda: "../envs/samtools.yaml"
+
+    shell:
+        """
+        samtools view -@ {threads} -b -u -q 30 {input} | \
+        samtools sort -@ {threads} -n -o {output} -
+        """
+
+# Namesort bam and remove PCR duplicates
+rule fixmates_pre_dedup:
+    input: os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/alignments/bowtie2/{sample}.namesorted.bam")
+
+    output: fixmate_bam=temp(os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/alignments/bowtie2/{sample}.fixmate.bam")),
+            fixmate_bai=temp(os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/alignments/bowtie2/{sample}.fixmate.bam.bai"))
+
+    log:    os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/logs/rule_logs/{sample}.fixmates_pre_dedup.txt")
+
+    benchmark: os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/logs/benchmark/{sample}.fixmates_pre_dedup.txt")
+
+    threads: 8
+
+    conda: "../envs/samtools.yaml"
+
+    message: "Fixmates pre PCR deduplication from {input}: {threads} threads"
+
+    shell:
+        """
+        # Add mate information to reads for deduplication
+        samtools fixmate -@ {threads} -r -m {input} - 2> {log} | \
+        samtools sort -@ {threads} -o {output.fixmate_bam} - 2> {log}
+        
+        samtools index -@ {threads} {output.fixmate_bam} 2> {log}
+        """
+
+# Remove PCR duplicates from BAM
+rule remove_PCR_duplicates:
+    input: os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/alignments/bowtie2/{sample}.fixmate.bam")
+
+    output: dedup_bam=temp(os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/alignments/bowtie2/{sample}.deduplicated.bam")),
+            dedup_bai=temp(os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/alignments/bowtie2/{sample}.deduplicated.bam.bai")),
+            final_bam=os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/alignments/bowtie2/{sample}.bam"),
+            final_bai=os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/alignments/bowtie2/{sample}.bam.bai")
+
+    params: config["keepChr"]
+
+    log:    os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/logs/rule_logs/{sample}.remove_PCR_duplicates.txt")
+
+    benchmark: os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/logs/benchmark/{sample}.remove_PCR_duplicates.txt")
+
+    threads: 8
+
+    conda: "../envs/samtools.yaml"
+
+    message: "Removing PCR duplicates and unwanted chromosomes from {input}: {threads} threads"
+
+    shell:
+        """
+        # use markdup to remove PCR duplicates
+        samtools markdup -@ {threads} -r -s {input} - 2> {log} | \
+        samtools sort -@ {threads} -o {output.dedup_bam} - 2> {log}
+
+        samtools index -@ {threads} {output.dedup_bam} 2> {log}
+        
+        # remove unmapped reads with -F 4
+        samtools view -@ {threads} -b -f 3 -F 4 {output.dedup_bam} {params} | \
+        samtools sort -@ {threads} -o {output.final_bam} - 2> {log}
+        
+        samtools index -@ {threads} {output.final_bam} 2> {log}
+
+        """
+
+# Convert alignments to bed file
+rule generate_Tn5_sites_bed:
+    input: os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/alignments/bowtie2/{sample}.bam")
+
+    output: os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/cut_sites/{sample}_Tn5_slop" + str(config["slop"]) + "_blacklisted.bed.gz")
+
+    log:    os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/logs/rule_logs/{sample}.generate_Tn5_sites_bed.txt")
+
+    benchmark: os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/logs/benchmark/{sample}.generate_Tn5_sites_bed.txt")
+
+    threads: 4
+
+    params: chrom_sizes=config["chrom_sizes"],
+            slop=config["slop"],
+            blacklist=config["blacklist"]
+
+    conda: "../envs/genome_tools.yaml"
+
+    message: "Generate Tn5 sites for {input}: {threads} threads"
+
+    shell:
+        """        
+        sh ./scripts/shift_reads.sh {input} {params.chrom_sizes} {params.slop} {params.blacklist} {output}
+        """
+
+# Generate bigwig coverage track of Tn5 signal scaled to the sequencing depth
+# Also generate the stranded signal tracks
+rule get_Tn5_coverage:
+    input: bam=os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/alignments/bowtie2/{sample}.bam"),
+           bam_index=os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/alignments/bowtie2/{sample}.bam.bai"),
+           tn5_bed=os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/cut_sites/{sample}_Tn5_slop" + str(config["slop"]) + "_blacklisted.bed.gz")
+
+    output: tn5_bedgraph=temp(os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/rpm_signal/{sample}_Tn5_slop" + str(config["slop"]) + "_blacklisted.bedraph")),
+            tn5_bigwig=os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/rpm_signal/{sample}_Tn5_slop" + str(config["slop"]) + "_blacklisted.bw"),
+
+    params: millions_factor=config["million_factor"],
+            chrom_sizes=config["chrom_sizes"]
+
+    log: os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/logs/rule_logs/{sample}.get_Tn5_coverage.txt")
+
+    benchmark: os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/logs/benchmark/{sample}.get_Tn5_coverage.txt")
+
+    threads: 4
+
+    conda: "../envs/genome_tools.yaml"
+
+    message: "Convert {input} to bigwig: {threads} threads"
+
+    shell:
+        """
+        sh ./scripts/generate_bigwig.sh {input.bam} {params.millions_factor} {input.tn5_bed} {params.chrom_sizes} {output.tn5_bedgraph} {output.tn5_bigwig}
+        """
+
+# Grep for Positive and Negative strands from Tn5 bedfile
+rule get_stranded_Tn5_sites:
+    input: tn5_bed=os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/cut_sites/{sample}_Tn5_slop" + str(config["slop"]) + "_blacklisted.bed.gz")
+    
+    output: tn5_bed_pos=os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/cut_sites/{sample}_Tn5_slop" + str(config["slop"]) + "_posStrand_blacklisted.bed.gz"),
+            tn5_bed_neg=os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/cut_sites/{sample}_Tn5_slop" + str(config["slop"]) + "_negStrand_blacklisted.bed.gz")
+
+    message: "Grep for Tn5 sites on positive and negative strands."
+
+    log:    os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/logs/rule_logs/{sample}.get_stranded_Tn5_sites.txt")
+
+    benchmark: os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/logs/benchmark/{sample}.get_stranded_Tn5_sites.txt")
+
+    threads: 4
+
+    shell:
+        """
+        zcat {input.tn5_bed} | grep -w "+" | pigz > {output.tn5_bed_pos}
+        zcat {input.tn5_bed} | grep -w "-" | pigz > {output.tn5_bed_neg}
+        """
+
+# Get stranded Tn5 coverage in a bigwig format scaled by sequencing depth
+rule get_stranded_Tn5_coverage:
+    input: bam=os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/maxatac/alignments/{sample}.bam"),
+           bam_index=os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/maxatac/alignments/{sample}.bam.bai"),
+           tn5_bed_pos=os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/cut_sites/{sample}_Tn5_slop" + str(config["slop"]) + "_posStrand_blacklisted.bed.gz"),
+           tn5_bed_neg=os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/cut_sites/{sample}_Tn5_slop" + str(config["slop"]) + "_negStrand_blacklisted.bed.gz")
+
+    params: millions_factor=config["million_factor"],
+            chrom_sizes=config["chrom_sizes"]
+
+    output: tn5_bedgraph_pos=temp(os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/rpm_signal/{sample}_Tn5_slop" + str(config["slop"]) + "_blacklisted_posStrand.bedraph")),
+            tn5_bedgraph_neg=temp(os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/rpm_signal/{sample}_Tn5_slop" + str(config["slop"]) + "_blacklisted_negStrand.bedraph")),
+            tn5_bigwig_pos=os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/rpm_signal/{sample}_Tn5_slop" + str(config["slop"]) + "_posStrand_blacklisted.bw"),
+            tn5_bigwig_neg=os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/rpm_signal/{sample}_Tn5_slop" + str(config["slop"]) + "_negStrand_blacklisted.bw")
+
+    log: os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/logs/rule_logs/{sample}.get_stranded_Tn5_coverage.txt")
+
+    benchmark: os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/logs/benchmark/{sample}.get_stranded_Tn5_coverage.txt")
+
+    threads: 4
+
+    conda: "../envs/genome_tools.yaml"
+
+    message: "Generate stranded Tn5 coverage tracks for {input.bam}. Using {threads} threads."
+
+    shell:
+        """
+        sh ./scripts/generate_bigwig.sh {input.bam} {params.millions_factor} {input.tn5_bed_pos} {params.chrom_sizes} {output.tn5_bedgraph_pos} {output.tn5_bigwig_pos}
+        sh ./scripts/generate_bigwig.sh {input.bam} {params.millions_factor} {input.tn5_bed_neg} {params.chrom_sizes} {output.tn5_bedgraph_neg} {output.tn5_bigwig_neg}
+        """
+
+# Call Peaks with MACS2
+rule maxatac_macs2_call_peaks:
+    input: os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/cut_sites/{sample}_Tn5_slop" + str(config["slop"]) + "_blacklisted.bed.gz")
+
+    output: os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/peaks/maxatac/{sample}_ext{ext_size}_q{qvalue}_peaks.narrowPeak")
+
+    log:    os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/logs/rule_logs/{sample}_ext{ext_size}_q{qvalue}.maxatac_macs2_call_peaks.txt")
+
+    benchmark: os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/logs/benchmark/{sample}.maxatac_macs2_call_peaks.txt")
+
+    params: PEAK_DIR = os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/maxatac/peaks"),
+            NAME = "{sample}_ext{ext_size}_q{qvalue}",
+            shift_size = lambda wildcards: shift_dict[wildcards.ext_size],
+            species = config["species"],
+            ext_size = "{ext_size}",
+            qvalue = "{qvalue}"
+
+    threads: 4
+
+    conda: "../envs/macs2.yaml"
+
+    message: "call peaks {input}: {threads} threads"
+
+    shell:
+        """
+        macs2 callpeak -t {input} --name {params.NAME} -g {params.species} --outdir {params.PEAK_DIR} --nomodel --shift -{params.shift_size} --extsize {params.ext_size} --keep-dup=all -q 0.{params.qvalue}
+        """
+
+# check number of reads mapped by samtools flagstat
+rule flagstat_sam:
+    input:  os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/alignments/bowtie2/{sample}.sam")
+
+    output: os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/qc/maxatac/flagstat/{sample}.sam.txt")
+
+    log:    os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/logs/rule_logs/{sample}.flagstat_sam.txt")
+
+    benchmark: os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/logs/benchmark/{sample}.flagstat_sam.txt")
+
+    threads: 4
+
+    params: jobname = "{sample}"
+
+    conda: "../envs/samtools.yaml"
+
+    message: "Get flagstats of sam {input}: {threads} threads"
+
+    shell:
+        """
+        samtools flagstat {input} > {output} 2> {log}
+        """
+
+# check number of reads mapped by samtools flagstat
+rule flagstat_final_bam:
+    input:  os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/alignments/bowtie2/{sample}.bam")
+
+    output: os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/qc/maxatac/flagstat/{sample}.final_bam.txt")
+
+    log:    os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/logs/flagstat_final_bam/{sample}.flagstat_final_bam.txt")
+
+    benchmark: os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/logs/benchmark/{sample}.flagstat_final_bam.txt")
+
+    threads: 4
+
+    params: jobname = "{sample}"
+
+    conda: "../envs/samtools.yaml"
+
+    message: "Get flagstats of final bam {input}: {threads} threads"
+
+    shell:
+        """
+        samtools flagstat {input} > {output} 2> {log}
+        """
+
+# Calculate the fraction of mapped reads that contribute to peaks
+rule calculate_frip:
+    input: 
+           os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/cut_sites/{sample}_Tn5_slop" + str(config["slop"]) + "_blacklisted.bed.gz"),
+           os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/peaks/maxatac/{sample}_ext40_q05_peaks.narrowPeak")
+
+    output: os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/qc/maxatac/frip/{sample}_ext40_q05_FRIP.txt")
+
+    log:    os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/logs/calculate_frip/{sample}_ext40_q05.calculate_frip.txt")
+
+    benchmark: os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/logs/benchmark/{sample}.calculate_frip.txt")
+
+    threads: 4
+
+    message: "Calulating FRIP"
+
+    conda: "../envs/bedtools.yaml"
+
+    shell:
+        """
+        sh ./scripts/frip.sh {input[0]} {input[1]} {output}
+        """
+
+# Get the fragment size distribution
+rule deeptools_bamPEFragmentSize:
+    input: os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/alignments/bowtie2/{sample}.bam")
+    
+    output: os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/qc/maxatac/fragment_dist/{sample}.tsv")
+
+    message: "Calulating fragment size distribution with DeepTools"
+  
+    params:
+        bin_size = 1,
+        blacklist = config["blacklist"]
+        
+    threads: 4
+    
+    conda: "../envs/deeptools.yaml"
+
+    log: os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/logs/deeptools_bamPEFragmentSize/{sample}.deeptools_bamPEFragmentSize.txt")
+        
+    benchmark: os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/logs/benchmark/{sample}.deeptools_bamPEFragmentSize.txt")
+
+    shell:
+        """
+        bamPEFragmentSize -b {input} -p {threads} --binSize {params.bin_size} --blackListFileName {params.blacklist} --outRawFragmentLengths {output}
+        """
+
+# Get the counts per chromosome
+rule get_chrom_read_counts:
+    input: os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/maxatac/alignments/{sample}.fixmate.bam")
+
+    output: os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/qc/maxatac/chrom_counts/{sample}_chrom_read_counts.txt")
+
+    message: "Counting reads per chromosome."
+    
+    log: os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/logs/get_chrom_read_counts/{sample}.get_chrom_read_counts.txt")
+
+    benchmark: os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/logs/benchmark/{sample}.get_chrom_read_counts.txt")
+
+    threads: 4
+
+    conda: "../envs/samtools.yaml"
+    
+    shell:
+        """
+        samtools idxstats {input} | cut -f 1,3 > {output}
+        """

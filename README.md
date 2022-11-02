@@ -1,18 +1,33 @@
 # snakeATAC
 
-A snakemake workflow for ATAC-seq data processing
+Yet another snakemake workflow for ATAC-seq data processing. This pipeline was created from code developed by:
 
-This pipeline was created from code developed by [Crazy Hot Tommy!](https://github.com/crazyhottommy?tab=repositories)
+* [Crazy Hot Tommy!](https://github.com/crazyhottommy?tab=repositories)'s many instructional guides
+* [TOBIAS](https://github.molgen.mpg.de/loosolab/TOBIAS_snakemake) ATAC-seq footprinting Snakemake workflow
+
+For SLURM setup we reference:
+
+* [jdblischak/smk-simple-slur repo](https://github.com/jdblischak/smk-simple-slurm) for simple submitting snakemake on SLURM
+* [Tessa Pierce](https://bluegenes.github.io/snakemake-via-slurm/) blog for example templates
 
 ## Workflow Overview
 
-Snakemake pipelines promote experimental reproducibility. For each project that you have, you should have a seperate [config.yaml](docs/config_yaml.md), [tab-delimited sample meta file](docs/meta_file.md), and a unique output directory.
+Snakemake pipelines promote experimental reproducibility. For this project, you should have the following inputs customized for your analysis:
 
-This workflow assumes that your run parameters are stored in the [config.yaml](docs/config_yaml.md) file and meta data for the experiments are found in a [tab-delimited sample meta file](docs/meta_file.md).
+1) A [config.yaml](docs/config_yaml.md) that describes the run parameters and location of reference data.
+2) A [tab-delimited sample meta file](docs/meta_file.md) file that describes the experiments to download from SRA and how to group them.
+3) A unique output directory.
 
-You will need to modify the [config.yaml](docs/config_yaml.md) and create a [tab-delimited sample meta file](docs/meta_file.md) before running the pipeline.
+A detailed overview of the steps in the ATAC-seq data processing are found [on the maxATAC wiki site]([docs/ATAC_processing.md](https://github.com/MiraldiLab/maxATAC/wiki/ATAC-seq-Data-Processing)).
 
-A detailed overview of the steps in the ATAC-seq data processing are found [here](docs/ATAC_processing.md).
+### Data Processing
+
+* Trim Galore! for `.fastq` QC and adapter trimming.
+* Bowtie2 for read alignment
+
+### Data QC
+
+### TFBS Analysis
 
 ## Installation
 
