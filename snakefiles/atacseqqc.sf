@@ -1,0 +1,15 @@
+rule atacseqqc:
+	input: os.path.join(config["output_dir"], "{sample}/alignments/{sample}.bam")
+
+	conda: "./envs/ataqseqqc.yaml"
+
+	log: os.path.join(config["output_dir"], "{sample}/logs/ATACseqQC/atacseqqc.txt")
+
+	params: species=config["species"]
+
+    threads: 4
+
+	shell:
+		"""
+		Rscript ./scripts/doATACseqQC.R {input} {params.species} > {log}
+		"""

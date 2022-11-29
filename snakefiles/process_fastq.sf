@@ -1,0 +1,110 @@
+"""
+This document has rules that are associated with downloading, trimming, and quality controlling fastq files.
+"""
+
+# Fasterq-dump to download SRA files to fastq
+rule get_fastq_pe_gz:
+    priority: 1
+
+    output:
+        # the wildcard name must be accession, pointing to an srr ID
+        temp(os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/fasterq_dump/{accession}_1.fastq.gz")),
+        temp(os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/fasterq_dump/{accession}_2.fastq.gz"))
+    
+    log:
+        os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/logs/fasterq_dump/{condition}_{sample}_{accession}.log")
+    
+    threads: 6  # defaults to 6
+    
+    message: "Downloading fastq files for R1: {output[0]} and R2: {output[1]}"
+    
+    wrapper:
+        "0.77.0/bio/sra-tools/fasterq-dump"
+
+# Merge replicate fastq files: merge all srr into the srx id
+rule merge_replicates_fastq_PE:
+    input: 
+        R1 = meta.getReplicateFastq_pe1,
+        R2 = meta.getReplicateFastq_pe2
+
+    output:
+        R1_OUT = temp(os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/merged_fastq/{sample}_1.fastq.gz")),
+        R2_OUT = temp(os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/merged_fastq/{sample}_2.fastq.gz"))
+
+    threads: 2
+
+    message: "Merging fastq files {input.R1} and {input.R2}"
+
+    shell:
+        """
+        cat {input.R1} > {output.R1_OUT}
+        cat {input.R2} > {output.R2_OUT}
+        """
+
+# Use fastqc to get pre-trim stats on fastq
+rule fastqc_pre_trim:
+    input: os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/merged_fastq/{sample}_{read}.fastq.gz")
+
+    output:
+        html=os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/qc/fastqc/pre_trim/{sample}_{read}.html"),
+        zip=os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/qc/fastqc/pre_trim/{sample}_{read}_fastqc.zip") # the suffix _fastqc.zip is necessary for multiqc to find the file. If not using multiqc, you are free to choose an arbitrary filename
+
+    params: "--quiet"
+
+    message: "Using FastQC to read QC metrics in fastq file {input}"
+
+    log:
+        os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/logs/fastqc/{sample}_{read}_pre_trim.log")
+
+    threads: 4
+
+    wrapper:
+        "0.77.0/bio/fastqc"
+
+# Trim the fastq reads 
+rule trim_galore_pe:
+    input:  
+        fq1=os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/merged_fastq/{sample}_1.fastq.gz"),
+        fq2=os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/merged_fastq/{sample}_2.fastq.gz")
+
+    output:
+        os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/trimmed_fastq/{sample}_1_val_1.fq.gz"),
+        os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/trimmed_fastq/{sample}_2_val_2.fq.gz")
+
+    threads: 16
+
+    params: TRIM_DIR = os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/trimmed_fastq")
+
+    message: "Trimming adaptors for {input} using trim_galore"
+
+    log: os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/logs/trimmed_fastq/{sample}.log")
+
+    conda: "../envs/trim_galore.yaml"
+
+    benchmark: os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/logs/benchmark/{sample}_trim_adapter.txt")
+
+    shell:
+        """
+        trim_galore -q 30 -paired -j 4 -o {params.TRIM_DIR} {input.fq1} {input.fq2} 2> {log}
+        """
+
+# Get reads statistics post adapter trimming
+rule fastqc_post_trim:
+    input: os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/trimmed_fastq/{sample}_{read}_val_{read}.fq.gz")
+
+    output:
+        html=os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/qc/fastqc/post_trim/{sample}_{read}.html"),
+        zip=os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/qc/fastqc/post_trim/{sample}_{read}_fastqc.zip") # the suffix _fastqc.zip is necessary for multiqc to find the file. If not using multiqc, you are free to choose an arbitrary filename
+
+    params: "--quiet"
+
+    message: "Using FastQC to read QC metrics in fastq file {input}"
+
+    log:
+        os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/logs/fastqc/{sample}_{read}_post_trim.log")
+
+    threads: 4
+
+    wrapper:
+        "0.77.0/bio/fastqc"
+
