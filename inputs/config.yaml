@@ -4,7 +4,7 @@ output_dir: /fs/project/PES0738/snakemake/runs/snakeatac_test_tobias
 # Bowtie2 index
 idx_bt2: /fs/project/PES0738/maxATAC_inputs/genome_inf/hg38/bowtie2_index/hg38
 
-# STAR index
+# STAR index: only required if TOBIAS analysis is performed
 idx_star: /fs/project/PES0738/maxATAC_inputs/genome_inf/hg38/STAR_hg38_index
 
 # Path to a TSV file with samples and their corresponding FASTQ file paths.
@@ -28,14 +28,15 @@ species: "hs"
 # List of chromosomes to limit the study to
 keepChr: 'chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 chr20 chr21 chr22 chrX chrY'
 
+maxatac_tfs:
+  TCF7
+  TCF12
+  LEF1
+
 # Analysis
 flags:
   fastqc: True
   maxatac: True
   stranded: False
   tobias: False
-  frip: False
-  frag_dist: False
-  chrom_count: False
   atacseqqc: False
-  stranded: False

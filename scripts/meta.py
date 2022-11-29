@@ -13,7 +13,8 @@ class MetaTable():
     """
     def __init__(self,
                  meta_path,
-                 output_dir):
+                 output_dir,
+                 slop=20):
         self.df = pd.read_table(meta_path)
 
         self.output_dir = output_dir
@@ -27,11 +28,8 @@ class MetaTable():
         self.srx_2_condition_dict = pd.Series(self.df.condition.values,index=self.df.srx).to_dict()
 
         self.name_df = self.nameBuilderDF()
-    
-    #def getConditionReps(self, wildcards):
-        #CONDITION_REP_LIST = self.df[self.df["condition"] == wildcards.condition]["srx"]
-
-        #return list(map(lambda condition_rep_id: os.path.join(self.output_dir, condition, sample, "alignments", "star", sample ".bam"), CONDITION_REP_LIST))
+        
+        self.slop = slop
     
     def nameBuilderDF(self):
         name_builder_df = self.df.copy()
@@ -45,9 +43,32 @@ class MetaTable():
     def getReplicateFastq_pe1(self, wildcards):
         TECH_REP_LIST = self.df[self.df["srx"] == wildcards.sample]["srr"]
 
-        return list(map(lambda tech_rep_id: os.path.join(self.output_dir, self.srx_2_condition_dict[wildcards.sample], "replicate_data", wildcards.sample, "fasterq_dump", tech_rep_id + "_1.fastq.gz"), TECH_REP_LIST))
+        return list(map(lambda tech_rep_id: os.path.join(self.output_dir, 
+                                                         self.srx_2_condition_dict[wildcards.sample], 
+                                                         "replicate_data", 
+                                                         wildcards.sample, 
+                                                         "fasterq_dump", 
+                                                         tech_rep_id + "_1.fastq.gz"), 
+                        TECH_REP_LIST))
 
     def getReplicateFastq_pe2(self, wildcards):
         TECH_REP_LIST = self.df[self.df["srx"] == wildcards.sample]["srr"]
 
-        return list(map(lambda tech_rep_id: os.path.join(self.output_dir, self.srx_2_condition_dict[wildcards.sample], "replicate_data", wildcards.sample, "fasterq_dump", tech_rep_id + "_2.fastq.gz"), TECH_REP_LIST))
+        return list(map(lambda tech_rep_id: os.path.join(self.output_dir, 
+                                                         self.srx_2_condition_dict[wildcards.sample], 
+                                                         "replicate_data", 
+                                                         wildcards.sample, 
+                                                         "fasterq_dump", 
+                                                         tech_rep_id + "_2.fastq.gz"), 
+                        TECH_REP_LIST))
+
+    def getBioReps(self, wildcards):
+        BIO_REP_LIST = self.df[self.df["condition"] == wildcards.condition]["srx"]
+
+        return list(map(lambda bio_rep_id: os.path.join(self.output_dir, 
+                                                         wildcards.condition,
+                                                         "replicate_data", 
+                                                         bio_rep_id, 
+                                                         "rpm_signal", 
+                                                         bio_rep_id + "_Tn5_slop" + str(self.slop) + "_blacklisted.bw"), 
+                        BIO_REP_LIST))

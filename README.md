@@ -20,14 +20,7 @@ Snakemake pipelines promote experimental reproducibility. For this project, you 
 
 A detailed overview of the steps in the ATAC-seq data processing are found [on the maxATAC wiki site]([docs/ATAC_processing.md](https://github.com/MiraldiLab/maxATAC/wiki/ATAC-seq-Data-Processing)).
 
-### Data Processing
-
-* Trim Galore! for `.fastq` QC and adapter trimming.
-* Bowtie2 for read alignment
-
-### Data QC
-
-### TFBS Analysis
+This version of snakeATAC is geared towards use with maxATAC and TOBIAS for making TF binding predictions.
 
 ## Installation
 

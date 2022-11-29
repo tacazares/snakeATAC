@@ -225,9 +225,9 @@ rule maxatac_macs2_call_peaks:
 
     log:    os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/logs/rule_logs/{sample}_ext{ext_size}_q{qvalue}.maxatac_macs2_call_peaks.txt")
 
-    benchmark: os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/logs/benchmark/{sample}.maxatac_macs2_call_peaks.txt")
+    benchmark: os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/logs/benchmark/{sample}_ext{ext_size}_q{qvalue}.maxatac_macs2_call_peaks.txt")
 
-    params: PEAK_DIR = os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/maxatac/peaks"),
+    params: PEAK_DIR = os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/peaks/maxatac"),
             NAME = "{sample}_ext{ext_size}_q{qvalue}",
             shift_size = lambda wildcards: shift_dict[wildcards.ext_size],
             species = config["species"],
@@ -359,3 +359,71 @@ rule get_chrom_read_counts:
         """
         samtools idxstats {input} | cut -f 1,3 > {output}
         """
+
+# Average biological replicate RPM normalized signal files
+rule average_bioreplicates:
+    input: meta.getBioReps
+
+    output: os.path.join(config["output_dir"], "{condition}/maxatac/biorep_average/{condition}.bw")
+
+    message: "Average biological replicates using maxATAC."
+
+    log: os.path.join(config["output_dir"], "{condition}/maxatac/logs/biorep_average/{condition}.biorep_average.txt")
+
+    params: prefix = "{condition}",
+            outdir = os.path.join(config["output_dir"], "{condition}/maxatac/biorep_average")
+
+    threads: 16
+
+    conda: "../envs/maxatac.yaml"
+
+    shell:
+        """
+        maxatac average -i {input} --prefix {params.prefix} --output {params.outdir}
+        """
+
+# Average biological replicate RPM normalized signal files
+rule normalize_bigwig:
+    input: os.path.join(config["output_dir"], "{condition}/maxatac/biorep_average/{condition}.bw")
+
+    output: os.path.join(config["output_dir"], "{condition}/maxatac/normalize_bigwig/{condition}.bw")
+
+    message: "Normalize ATAC-seq signal tracks."
+
+    log: os.path.join(config["output_dir"], "{condition}/maxatac/logs/normalize_bigwig/{condition}.normalize_bigwig.txt")
+
+    params: prefix = "{condition}",
+            outdir = os.path.join(config["output_dir"], "{condition}/maxatac/normalize_bigwig")
+
+    threads: 8
+
+    conda: "../envs/maxatac.yaml"
+
+    shell:
+        """
+        maxatac normalize --signal {input} --prefix {params.prefix} --output {params.outdir}
+        """
+
+# Make maxatac predictions for the TFs of interest
+rule maxatac_predict:
+    input:  os.path.join(config["output_dir"], "{condition}/maxatac/normalize_bigwig/{condition}.bw")
+
+    output: os.path.join(config["output_dir"], "{condition}/maxatac/predictions/{TF}/{condition}_{TF}.bw")
+
+    message: "Make maxATAC predictions."
+
+    log: os.path.join(config["output_dir"], "{condition}/maxatac/logs/predictions/{condition}_{TF}.predictions.txt")
+
+    threads: 8
+
+    params: prefix = "{condition}_{TF}",
+            TF_model = "{TF}",
+            outdir = os.path.join(config["output_dir"], "{condition}/maxatac/predictions/{TF}")
+
+    conda: "../envs/maxatac.yaml"
+
+    shell:
+        """
+        maxatac predict -tf {params.TF_model} -s {input} --prefix {params.prefix} --output {params.outdir}
+        """
+

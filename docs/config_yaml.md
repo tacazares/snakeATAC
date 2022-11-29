@@ -1,6 +1,6 @@
 # Configuration `.yaml` files
 
-The [`config.yaml`](../inputs/config.yaml) and the cluster [`config.yaml`](../simple/config.yaml) files define the parameters for the run. The input `config.yaml` file must be in the [`inputs`](../inputs) directory relative to the `Snakefile` and is the only required `.yaml` file. The cluster `config.yaml` contains information specific to using Snakemake to submit jobs to the SLURM scheduler and can be found in the [`simple`](../simple/) directory.
+The [`config.yaml`](../inputs/config.yaml) and the cluster [`config.yaml`](../simple/config.yaml) files define the parameters for the run. The input `config.yaml` file must be in the [`inputs`](../inputs) directory relative to the `Snakefile` and is the only required `.yaml` file.  The `config.yaml` file can be specified from the command line using `--configfile` instead of making sure it is placed in the correct directory. The cluster `config.yaml` contains information specific to using Snakemake to submit jobs to the SLURM scheduler and can be found in the [`simple`](../simple/) directory.
 
 ## `config.yaml`
 
@@ -17,36 +17,54 @@ The `config.yaml` must contain the following fields:
 | `million_factor` | Millions factor to use, i.e. 1000000, 20000000, etc... |
 | `keepChr`        | List of chromosomes to keep in the analysis            |
 | `species`        | Species of the experiments                             |
+| `maxatac_tfs`    | List of TFs available from maxATAC to make predictions |
+| `flags`          | Flags used for limiting the workflow steps performed   |
 
 Example:
 
 ```yaml
 # Output directory
-output_dir: ./outputs
+output_dir: /fs/project/PES0738/snakemake/runs/snakeatac_test_tobias
 
 # Bowtie2 index
-idx_bt2: ./hg38/bowtie2_index/hg38
+idx_bt2: /fs/project/PES0738/maxATAC_inputs/genome_inf/hg38/bowtie2_index/hg38
 
-# Path to a JSON file with samples and their corresponding FASTQ files.
-SAMPLES_TSV: './sample.tsv'
+# STAR index: only required if TOBIAS analysis is performed
+idx_star: /fs/project/PES0738/maxATAC_inputs/genome_inf/hg38/STAR_hg38_index
+
+# Path to a TSV file with samples and their corresponding FASTQ file paths.
+SAMPLES_TSV: '/fs/project/PES0738/snakemake/snakeATAC/inputs/sample.tsv'
 
 # Path to chromosome sizes file
-chrom_sizes: "./genome_inf/hg38.22XY.chrom.sizes"
+chrom_sizes: "/fs/project/PES0738/maxATAC_inputs/genome_inf/hg38.22XY.chrom.sizes"
 
 # Path to blacklisted regions file
-blacklist: "./genome_inf/hg38_maxatac_blacklist_merged.bed"
+blacklist: "/fs/project/PES0738/maxATAC_inputs/genome_inf/hg38_maxatac_blacklist_V2.bed"
 
 # Slop size to use around the Tn5 insertion sites
 slop: 20
 
-# Species
-species: hs
-
 # What is the millions factor that you want to use to scale the read counts
-million_factor: 1000000
+million_factor: 20000000
+
+# MACS2 species
+species: "hs"
 
 # List of chromosomes to limit the study to
-keepChr: 'chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 chr20 chr21 chr22'
+keepChr: 'chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 chr20 chr21 chr22 chrX chrY'
+
+maxatac_tfs:
+  TCF7
+  TCF12
+  LEF1
+
+# Analysis
+flags:
+  fastqc: True
+  maxatac: True
+  stranded: False
+  tobias: False
+  atacseqqc: False
 ```
 
 ## Cluster `config.yaml` for use with SLURM

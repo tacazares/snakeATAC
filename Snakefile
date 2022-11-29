@@ -27,7 +27,9 @@ configfile: "./inputs/config.yaml"
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Initialize the meta table. This will be used later to help build filenames
-meta = MetaTable(meta_path=config["SAMPLES_TSV"], output_dir=config["output_dir"])
+meta = MetaTable(meta_path=config["SAMPLES_TSV"], output_dir=config["output_dir"], slop=config["slop"])
+
+TF_list = config["maxatac_tfs"].split(" ")
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Build Output Filenames
@@ -60,10 +62,12 @@ if config["flags"]["maxatac"]:
     ALL_BAM_FLAGSTAT = expand(os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/qc/maxatac/flagstat/{sample}.final_bam.txt"), zip, condition = meta.name_df.condition, sample = meta.name_df.srx)
 
     ALL_FRIPS = expand(os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/qc/maxatac/frip/{sample}_ext40_q05_FRIP.txt"), zip, condition = meta.name_df.condition, sample = meta.name_df.srx)
-    ALL_FRAG_DIST = expand(os.path.join(config["output_dir"], "{sample}/qc/maxatac/fragment_dist/{sample}.tsv"), zip, condition = meta.name_df.condition, sample = meta.name_df.srx)
-    ALL_CHROM_READ_COUNTS = expand(os.path.join(config["output_dir"], "{sample}/qc/maxatac/chrom_counts/{sample}_chrom_read_counts.txt"), zip, condition = meta.name_df.condition, sample = meta.name_df.srx)
+    ALL_FRAG_DIST = expand(os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/qc/maxatac/fragment_dist/{sample}.tsv"), zip, condition = meta.name_df.condition, sample = meta.name_df.srx)
+    ALL_CHROM_READ_COUNTS = expand(os.path.join(config["output_dir"], "{condition}/replicate_data/{sample}/qc/maxatac/chrom_counts/{sample}_chrom_read_counts.txt"), zip, condition = meta.name_df.condition, sample = meta.name_df.srx)
 
-    outputs.append(ALL_BAM + ALL_BIGWIG + ALL_MAXATAC_PEAKS + ALL_SAM_FLAGSTAT + ALL_BAM_FLAGSTAT + ALL_FRIPS + ALL_FRAG_DIST + ALL_CHROM_READ_COUNTS)
+    ALL_AVERAGE_BIGWIGS = expand(os.path.join(config["output_dir"], "{condition}/maxatac/biorep_average/{condition}.bw"), condition = meta.name_df.condition)
+    ALL_PREDICTIONS = expand(os.path.join(config["output_dir"], "{condition}/maxatac/predictions/{TF}/{condition}_{TF}.bw"), TF=TF_list, condition = meta.name_df.condition)
+    outputs.append(ALL_BAM + ALL_BIGWIG + ALL_MAXATAC_PEAKS + ALL_SAM_FLAGSTAT + ALL_BAM_FLAGSTAT + ALL_FRIPS + ALL_FRAG_DIST + ALL_CHROM_READ_COUNTS + ALL_AVERAGE_BIGWIGS + ALL_PREDICTIONS)
 
 # Run ATAC-seq qc
 if config["flags"]["atacseqqc"]:
@@ -84,8 +88,7 @@ shift_dict = {"40": "0", "200": "80"}
 include: os.path.join("./snakefiles", "process_fastq.sf")
 include: os.path.join("./snakefiles", "maxatac.sf")
 include: os.path.join("./snakefiles", "tobias.sf")
-#include: os.path.join("./snakefiles", "replicate_analysis.sf")
-#include: os.path.join("./snakefiles", "atacseqqc.sf")
+include: os.path.join("./snakefiles", "atacseqqc.sf")
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Start Run
