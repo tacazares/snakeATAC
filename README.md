@@ -1,5 +1,7 @@
 # snakeATAC
 
+![snakeatac.png](docs/snakeatac.png)
+
 Yet another snakemake workflow for ATAC-seq data processing. This pipeline was created from code developed by:
 
 * [Crazy Hot Tommy!](https://github.com/crazyhottommy?tab=repositories)'s many instructional guides
